@@ -1,6 +1,6 @@
-## Multi-Species Productivity-Susceptiblity Analysis 
+## Productivity-Susceptiblity Analysis (PSA) for multiple species at once
 
-This is an R routine for rapidly performing Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once, adapted by Alexandre dos Santos Jr in collaboration with Dr Jason Cope. The code is mostly sourced from the U. S. National Oceanic and Atmospheric Administration (NOAA) Web Application for PSA (hosted at https://github.com/nathanvaughan1/PSA) by Dr Nathan Vaughan & Dr Jason Cope. 
+This is an R routine for rapidly performing Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once, adapted by Alexandre dos Santos Jr. in collaboration with Dr. Jason Cope. The code is mostly sourced from the U. S. National Oceanic and Atmospheric Administration (NOAA) Web Application for PSA (hosted at https://github.com/nathanvaughan1/PSA) by Dr. Nathan Vaughan & Dr. Jason Cope. 
 
 ### How to use
 
@@ -13,6 +13,4 @@ Patrick, W. S., Spencer, P., Ormseth, O. A., Cope, J. M., Field, J. C., Kobayash
 
 PSA web application at NOAA FIT (Fisheries Integrated Toolbox): https://nmfs-ost.github.io/noaa-fit/PSA
 
-
-For questions, suggestions and bug reports, please contact Alexandre dos Santos Jr at alexandre.ricardosantos@ufpe.br
 
