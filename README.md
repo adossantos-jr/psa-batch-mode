@@ -1,4 +1,4 @@
-# Multi-Species Productivity-Susceptiblity Analysis (PSA)
+## Multi-Species Productivity-Susceptiblity Analysis (PSA)
 
 This is an R routine for rapidly performing Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once. The general approach mostly draws from the extended PSA framework by Patrick et al. (2009), and the code is mostly adapted from the U. S. National Oceanic and Atmospheric Administration (NOAA) Web Application for PSA (at https://github.com/nathanvaughan1/PSA) by Dr Nathan Vaughan & Dr Jason Cope. 
 
