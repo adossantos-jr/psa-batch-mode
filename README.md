@@ -11,6 +11,6 @@ Modifications can be made in all steps of the PSA (some useful may be attribute 
 ### Resources
 Patrick, W. S., Spencer, P., Ormseth, O. A., Cope, J. M., Field, J. C., Kobayashi, D. R., ... & Lawson, A. (2009). Use of productivity and susceptibility indices to determine stock vulnerability, with example applications to six US fisheries.
 
-NOAA PSA web application at FIT (Fisheries Integrated Toolbox): https://nmfs-ost.github.io/noaa-fit/PSA
+PSA web application at NOAA FIT (Fisheries Integrated Toolbox): https://nmfs-ost.github.io/noaa-fit/PSA
 
 
