@@ -51,9 +51,9 @@ Where 'test_psa_data.csv' is a .csv (Comma-separate values) file with species as
 ```
 df = read.csv('species_attributes_gillneting.csv')
 ```
-Categorical columns must filled according the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples are available in the test data. If you use software such as Microsoft Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
+Categorical columns must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples are available in the test data. If you use software such as Microsoft Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
 
-And done! This is all it is needed to run the rountine. After setting the working directory and uploading your data, press Ctrl + A to select all the script and then Ctrl + Enter to run it. All the necessary packages will be automatically installed and/or loaded. Results will appear in your working directory in the form of a .csv file (psa_result.csv) and a image (plots_psa.png) with a susceptibility by productivity plot and a histogram. If you want to modify PSA settings further, see below.
+And done! This is all it is needed to run the rountine. After setting the working directory and uploading your data, press Ctrl + A to select all the script and then Ctrl + Enter to run it. All the necessary packages will be automatically installed and/or loaded. Results will appear in your working directory in the form of a .csv file (psa_result.csv) and a image (plots_psa.png) with a susceptibility by productivity plot and a histogram. If you want to modify the PSA settings further, see below.
 
 ### Further modifications
 Several modifications can be made throughout the script to adapt the PSA to the specific desired conditions. Some key adjustments can be found below. 
