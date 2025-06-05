@@ -49,7 +49,7 @@ df = read.csv('test_psa_data.csv')
 ```
 Where 'test_psa_data.csv' is a .csv (comma-separated values) file with species as rows and attributes as columns. If needed, you can name this file after your own data frame, such as:
 ```
-df = read.csv('species_attributes_gillneting.csv')
+df = read.csv('species_attributes_gillnet_pernambuco.csv')
 ```
 Categorical columns must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples are available in the test data. If you use software such as Microsoft Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
 
