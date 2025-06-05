@@ -4,7 +4,7 @@ This is an R routine for rapidly performing Productivity-Susceptibility Analysis
 ### Basic instructions
 This routine is built in the R language. To use it, you must download and install the latest version of R at https://www.r-project.org/, and the latest version of the RStudio integrated development environment (IDE) at https://posit.co/download/rstudio-desktop/. You can then open the script (multispecies_psa.R) in RStudio.
 
-#### Uploading your data
+#### Importing your data
 The first step is setting your working directory. This directory is where the input data must be placed, and where the results will appear. This is done in this section (line 6):
 
 ```
