@@ -1,0 +1,11 @@
+﻿species,r,tmax,lmax,k,m,fec,breed,rec,tmat,troph,area_over,geog_conc,vert_over,seas_migr,school,morph,desire,mng_strat,f_over_m,b_over_b0,surv_prob,hab_impact
+Acanthurus bahianus,0.628095754,17.3304338,36.84000015,0.768478199,0.909638053,,0,,2.006169993,2.109999895,15.38461538,high,high,no_effect,increase_fish,mod_select,low,no_strat,,,,
+Achirus lineatus,1.051364555,6.500877311,33.09999847,0.491006435,0.765011768,,0,,1.535531286,3.519999981,1.923076923,mod,high,no_effect,no_effect,mod_select,low,no_strat,,,,
+Anisotremus virginicus,0.570616378,14.04097487,40.59999847,0.22948051,0.538069212,,0,,3.174162277,3.589999914,3.846153846,high,high,no_effect,increase_fish,mod_select,high,no_strat,,,,
+Bagre bagre,0.457535997,13.96144392,55,0.194616521,0.367815699,,3,,3.892126161,4.010000229,17.30769231,mod,high,no_effect,no_effect,high_selec,low,no_strat,,,,
+Epinephelus adscensionis,0.438231672,13.79858428,65,0.208269566,0.369959266,,0,,4.85185898,3.529999971,5.769230769,high,high,no_effect,no_effect,high_selec,high,no_strat,,,,
+Haemulon plumierii,0.658933542,13.41768217,53,0.268490857,0.81277454,,0,,2.949390136,3.589999914,40.38461538,mod,high,no_effect,increase_fish,high_selec,high,no_strat,,,,
+Lutjanus jocu,0.236732006,21.35465066,128,0.154876897,0.205895232,,0,,4.242139496,4.409999847,11.53846154,mod,high,no_effect,increase_fish,high_selec,high,no_strat,,,,
+Scarus coelestinus,0.460208054,10.85153574,77,0.540143219,0.336507401,,0,,2.023921442,2.029999971,1.923076923,high,high,no_effect,increase_fish,mod_select,mod,no_strat,,,,
+Sphyrna lewini,0.016323196,35.06507894,430,0.108272281,0.134868365,,8,,12.801997,4.079999924,1.57480315,mod,mod,increase_fish,increase_fish,high_selec,mod,reactive,,,,
+Trachinotus goodei,0.866608342,7.011255289,50,0.431065676,0.928905668,,0,,1.510975033,4.340000153,1.923076923,low,high,no_effect,increase_fish,mod_select,high,no_strat,,,,
