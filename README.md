@@ -47,7 +47,7 @@ Data frame importing is done in this section (line 10):
 ```
 df = read.csv('test_psa_data.csv') 
 ```
-Where 'test_psa_data.csv' is a .csv (Comma-separate values) file with species as rows and attributes as columns. If needed, you can name this file after your own data frame, such as:
+Where 'test_psa_data.csv' is a .csv (comma-separated values) file with species as rows and attributes as columns. If needed, you can name this file after your own data frame, such as:
 ```
 df = read.csv('species_attributes_gillneting.csv')
 ```
