@@ -132,7 +132,7 @@ species_df$weight[species_df$attribute == 'area_over'] = 2 # and areal overlap i
  }
 ```
 #### Assigning probabilities as attribute scores
-One of the main features of the NOAA FIT PSA is the possibility of probabilistic scoring. Instead of an attributed being assigned a single category ("low", "moderate" or "high"), probabilities can be assigned to each category for each species. For example, assuming the *r* for the species *Acanthurus bahianus* does not place it in a specific category for *r*, but has a 50% probability of being assigned "moderate" productivity and 50% probability of being assigned "high" productivity, this can be done in this section (line 239): 
+One of the main features of the NOAA FIT PSA is the possibility of probabilistic scoring. Instead of an attribute being assigned a single definitive category ("low", "moderate" or "high"), probabilities can be assigned to each category, for each attribute and each species. For example, if we assume that the *r* for the species *Acanthurus bahianus* does not definitively place it in a specific category, but has a 50% probability of being assigned "moderate" productivity and 50% probability of being assigned "high" productivity, this can be done in this section (line 239): 
 
 ```
 species_list[['Acanthurus bahianus']]['high'][species_list[['Acanthurus bahianus']]['attribute'] == 'weight', ] = 2
