@@ -8,7 +8,7 @@ This routine is built in the R language. To use it, you must download and instal
 The first step is setting your working directory. This directory is where the input data must be placed, and where the results will appear. This is done in this section (line 6):
 
 ```
-  setwd('your wd')
+setwd('your wd')
 ```
 Where 'your wd' must be replaced with a directory path. An example of a working directory path in Windows is:
 ```
