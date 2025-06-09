@@ -1,5 +1,5 @@
 # Productivity-Susceptibility for multiple species at one
-# more information can be found at https://github.com/adossantos-jr/psa_multispecies
+# more information can be found at https://github.com/adossantos-jr/psa-multispecies
 
 # Set your working directory
 
