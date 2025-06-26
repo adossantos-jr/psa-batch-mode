@@ -169,6 +169,9 @@ vul_class = function(x) {
 # otherwise it will be "low"
 }
 ```
+### Limitations
+As of right now, this PSA lacks the data quality index based on the number of attributes used, as proposed by Patrick et al. (2009). For now, it is recommended that an equal number of attributes be used for all species when applying this routine. The data quality index will be implemented in the future.
+
 ### Resources
 
 Main reference used in this PSA approach: *Patrick, W. S., Spencer, P., Ormseth, O. A., Cope, J. M., Field, J. C., Kobayashi, D. R., ... & Lawson, A. (2009). Use of productivity and susceptibility indices to determine stock vulnerability, with example applications to six US fisheries* 
