@@ -52,8 +52,12 @@ df = read.csv('species_attributes_gillnet_pernambuco.csv')
 ```
 Categorical columns must be filled according to the respective functions in the script (i. e. cat_morph requires categories `'high_selec'`, `'mod_selec'` & `'low_selec'`); examples are available in the test data. If you use software such as Microsoft Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
 
-And done! This is all it is needed to run the rountine. After setting the working directory and uploading your data, press Ctrl + A to select all the script and then Ctrl + Enter to run it. All the necessary packages will be automatically installed and/or loaded. Results will appear in your working directory in the form of a .csv file and a image with a susceptibility by productivity plot and a histogram. If you want to modify the PSA settings further, see below.
+And done! This is all it is needed to run the rountine. After setting the working directory and uploading your data, press Ctrl + A to select all the script and then Ctrl + Enter to run it. All the necessary packages will be automatically installed and/or loaded. Results will appear in your working directory in the form of a .csv file and a image with a susceptibility by productivity plot and a histogram. The graphical output should look like this:
 
+<img width="300" height="500" alt="plots_psa" src="https://github.com/user-attachments/assets/dd92d597-2319-4a4e-8fec-cd7f4bcca557" />
+
+
+If you want to modify the PSA settings further, see below.
 ### Further modifications
 Several modifications can be made throughout the script to adapt the PSA to the specific desired conditions. Some key adjustments can be found below. 
 #### Modifying attribute thresholds
@@ -66,7 +70,8 @@ cat_k = function(x) {
 }
 ```
 If you wish to modify the `k` thresholds to to 0.3 and 0.5 (instead of the standard 0.15 and 0.25), for example, you can modify the values accordingly in the conditionals: 
-```
+```<img width="2727" height="4363" alt="plots_psa" src="https://github.com/user-attachments/assets/33a2dc14-e896-40fc-8470-374ab4447f98" />
+
 cat_k = function(x) {
   ifelse(is.na(x), NA, 
          ifelse(x > 0.5, 'high',       # now if K > 0.5, it will be set to "high" productivity 
