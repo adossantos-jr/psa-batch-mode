@@ -1,4 +1,4 @@
-## Productivity-Susceptiblity Analysis (PSA) for multiple species at once
+## Productivity-Susceptiblity Analysis (PSA) for multiple species at once in batch mode
 This is an R routine for rapidly performing Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once in a simple way. The code for the PSA itself is mostly sourced from the PSA Web Application at the Fisheries Integrated Toolbox (FIT) by the U. S. National Oceanic and Atmospheric Administration (NOAA), developed by Dr. Nathan Vaughan & Dr. Jason Cope. Like in the NOAA PSA Web Application, this routine allows for probabilistic attribute scoring and generates a bootstrapping-based confidence interval. 
 
 ### Basic instructions
