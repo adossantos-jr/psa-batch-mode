@@ -11,7 +11,7 @@ setwd('your wd')
 ```
 Where `'your wd'` must be replaced with a directory path. An example of a working directory path in Windows is:
 ```
-setwd('C:/Users/alexandre/Documents/multispecies_psa')
+setwd('C:/Users/alexandre/Documents/psa_batch_mode')
 ```
 To better understand working directories in R, a comprehensive guide can be found [here](https://intro2r.com/work-d.html).
 
@@ -46,11 +46,9 @@ Data frame importing is done in this section (line 10):
 ```
 df = read.csv('test_psa_data.csv') 
 ```
-Where `'test_psa_data.csv'` is a .csv (comma-separated values) file with species as rows and attributes as columns. If needed, you can name this file after your own data frame, such as:
-```
-df = read.csv('species_attributes_gillnet_pernambuco.csv')
-```
-Categorical columns must be filled according to the respective functions in the script (i. e. cat_morph requires categories `'high_selec'`, `'mod_selec'` & `'low_selec'`); examples are available in the test data. If you use software such as Microsoft Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
+Where `'test_psa_data.csv'` is a .csv (comma-separated values) file with species as rows and attributes as columns. If needed, you can name this file after your own data frame.
+
+Categorical columns must be filled according to the respective functions in the script (i. e. cat_morph requires categories `'high_selec'`, `'mod_selec'` & `'low_selec'`); examples are available in the test data. If you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
 
 And done! This is all it is needed to run the rountine. After setting the working directory and uploading your data, press Ctrl + A to select all the script and then Ctrl + Enter to run it. All the necessary packages will be automatically installed and/or loaded. Results will appear in your working directory in the form of a .csv file and a image with a susceptibility by productivity plot and a histogram. The graphical output should look like this:
 
