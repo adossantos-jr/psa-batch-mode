@@ -173,7 +173,7 @@ vul_class = function(x) {
 }
 ```
 ### Limitations
-As of right now, this PSA lacks the data quality index based on the number of attributes used. For now, it is recommended that an equal number of attributes be used for all species when applying this routine. The data quality index will be implemented in the future.
+As of right now, this PSA lacks the data quality index based on the number of attributes used. For now, when using this routine, you should either use an equal number of attributes for all species, or manually assign the data quality index. The data quality index will be implemented in the future.
 
 ### Resources
 
