@@ -1,5 +1,5 @@
 # Productivity-Susceptibility for multiple species at one
-# more information can be found at https://github.com/adossantos-jr/psa-multispecies
+# more information can be found at https://github.com/adossantos-jr/psa-batch-mode
 
 # Set your working directory
 
@@ -454,5 +454,6 @@ print('Done! check your working directory for the results')
 
 
   
+
 
 
