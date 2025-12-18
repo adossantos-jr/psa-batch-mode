@@ -1,9 +1,9 @@
 # Productivity-Susceptibility in batch mode for multiple species at one
 # more information can be found at https://github.com/adossantos-jr/psa-batch-mode
 
-# Set your working directory
+# Getting your working directory
 
-setwd('your wd')
+setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) 
 
 # Importing your data frame 
 
@@ -454,6 +454,7 @@ print('Done! check your working directory for the results')
 
 
   
+
 
 
 
