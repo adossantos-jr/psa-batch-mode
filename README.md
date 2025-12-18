@@ -6,7 +6,7 @@ This routine is built in the R language. To use it, you must download and instal
 
 #### Importing your data
 
-The first step is selecting your working directory, that is, the folder in which your data must be and where outputs will appear. This will be selected automatically based on where your script is. 
+The first step is setting your working directory, that is, the folder in which your data must be and where outputs will appear. This will be set automatically based on where your script is. 
 
 This routine requires a simple data frame with species as rows and attributes as columns. Columns must be named after the column names in the test data frame (`test_psa_data.csv`). Columns are: 
 
