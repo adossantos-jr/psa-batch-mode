@@ -5,15 +5,8 @@ This is an R routine for rapidly performing Productivity-Susceptibility Analysis
 This routine is built in the R language. To use it, you must download and install the latest version of [R](https://www.r-project.org/), and the latest version of the [RStudio integrated development environment (IDE)](https://posit.co/download/rstudio-desktop/). You can then open the script (`psa_batch_mode.R`) in RStudio.
 
 #### Importing your data
-The first step is setting your working directory. This directory is where the input data must be placed, and where the results will appear. This is done in this section (line 6):
-```
-setwd('your wd')
-```
-Where `'your wd'` must be replaced with a directory path. An example of a working directory path in Windows is:
-```
-setwd('C:/Users/alexandre/Documents/psa_batch_mode')
-```
-To better understand working directories in R, a comprehensive guide can be found [here](https://intro2r.com/work-d.html).
+
+The first step is selecting your working directory, that is, the folder in which your data must be and where outputs will appear. This will be selected automatically based on where your script is. 
 
 This routine requires a simple data frame with species as rows and attributes as columns. Columns must be named after the column names in the test data frame (`test_psa_data.csv`). Columns are: 
 
