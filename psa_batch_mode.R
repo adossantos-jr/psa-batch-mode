@@ -3,6 +3,7 @@
 
 # Getting your working directory
 
+if (!require("rstudioapi")) install.packages("rstudioapi")
 setwd(dirname(rstudioapi::getActiveDocumentContext()$path)) 
 
 # Importing your data frame 
