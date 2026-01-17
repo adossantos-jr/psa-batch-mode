@@ -1,15 +1,14 @@
 
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(dplyr, ggplot2, grid, ggrepel, patchwork,
-               DT, grid)
-
+               DT, grid, shiny)
 # UI
-ui = fluidPage(
-  titlePanel("Productivity-Susceptibility Analysis (PSA)"),
+ui <- fluidPage(
+  titlePanel("Productivity-Susceptibility Analysis (PSA) in batch mode"),
   
   sidebarLayout(
     sidebarPanel(
-      width = 3,
+      width = 4,
       
       # 1. Upload data
       fileInput("datafile", "1. Upload CSV Data File",
@@ -18,73 +17,179 @@ ui = fluidPage(
       hr(),
       
       # 2. Threshold settings
-      h4("2. Adjust Thresholds"),
+      h4("2. Adjust Thresholds & Weights"),
       
       tabsetPanel(
         id = "threshold_tabs",
         
         tabPanel("Productivity",
                  br(),
-                 h5("Intrinsic growth rate (r)"),
+                 fluidRow(
+                   column(8, h5("Intrinsic growth rate (r)")),
+                   column(4, numericInput("weight_r", "Weight", 2, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("r_high", "High (>)", 0.5, step = 0.01),
                  numericInput("r_low", "Low (<)", 0.16, step = 0.01),
                  
                  hr(),
-                 h5("Maximum age (tmax)"),
+                 fluidRow(
+                   column(8, h5("Maximum age (tmax)")),
+                   column(4, numericInput("weight_tmax", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("tmax_high", "High (<)", 10, step = 1),
                  numericInput("tmax_low", "Low (>)", 30, step = 1),
                  
                  hr(),
-                 h5("Maximum size (Lmax)"),
+                 fluidRow(
+                   column(8, h5("Maximum size (Lmax)")),
+                   column(4, numericInput("weight_lmax", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("lmax_high", "High (<)", 60, step = 1),
                  numericInput("lmax_low", "Low (>)", 150, step = 1),
                  
                  hr(),
-                 h5("Von Bertalanffy K"),
+                 fluidRow(
+                   column(8, h5("Von Bertalanffy K")),
+                   column(4, numericInput("weight_k", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("k_high", "High (>)", 0.25, step = 0.01),
                  numericInput("k_low", "Low (<)", 0.15, step = 0.01),
                  
                  hr(),
-                 h5("Natural mortality (M)"),
+                 fluidRow(
+                   column(8, h5("Natural mortality (M)")),
+                   column(4, numericInput("weight_m", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("m_high", "High (>)", 0.4, step = 0.01),
                  numericInput("m_low", "Low (<)", 0.2, step = 0.01),
                  
                  hr(),
-                 h5("Fecundity"),
+                 fluidRow(
+                   column(8, h5("Fecundity")),
+                   column(4, numericInput("weight_fec", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("fec_high", "High (>)", 100000, step = 1000),
                  numericInput("fec_low", "Low (<)", 10000, step = 1000),
                  
                  hr(),
-                 h5("Age at maturity (tmat)"),
+                 fluidRow(
+                   column(8, h5("Breeding strategy")),
+                   column(4, numericInput("weight_breed", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: see original code for values)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Recruitment frequency")),
+                   column(4, numericInput("weight_rec", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: highfreq/modfreq/lowfreq)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Age at maturity (tmat)")),
+                   column(4, numericInput("weight_tmat", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("tmat_high", "High (>)", 4, step = 0.1),
                  numericInput("tmat_low", "Low (<)", 2, step = 0.1),
                  
                  hr(),
-                 h5("Mean trophic level"),
+                 fluidRow(
+                   column(8, h5("Mean trophic level")),
+                   column(4, numericInput("weight_troph", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("troph_high", "High (<)", 2.5, step = 0.1),
                  numericInput("troph_low", "Low (>)", 3.5, step = 0.1)
         ),
         
         tabPanel("Susceptibility",
                  br(),
-                 h5("Areal overlap"),
+                 fluidRow(
+                   column(8, h5("Areal overlap")),
+                   column(4, numericInput("weight_area_over", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("area_over_high", "High (>)", 0.5, step = 0.01),
                  numericInput("area_over_low", "Low (<)", 0.25, step = 0.01),
                  
                  hr(),
-                 h5("F/M ratio"),
+                 fluidRow(
+                   column(8, h5("Geographic concentration")),
+                   column(4, numericInput("weight_geog_conc", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: high/mod/low)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Vertical overlap")),
+                   column(4, numericInput("weight_vert_over", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: high/mod/low)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Seasonal migrations")),
+                   column(4, numericInput("weight_seas_migr", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: increase_fish/no_effect/decrease_fish)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Schooling behavior")),
+                   column(4, numericInput("weight_school", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: increase_fish/no_effect/decrease_fish)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Morphology affecting capture")),
+                   column(4, numericInput("weight_morph", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: high_selec/mod_selec/low_selec)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Desirability")),
+                   column(4, numericInput("weight_desire", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: high/mod/low)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Management strategy")),
+                   column(4, numericInput("weight_mng_strat", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: no_strat/reactive/proactive)", style = "font-size: 11px; color: gray;"),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("F/M ratio")),
+                   column(4, numericInput("weight_f_over_m", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("f_over_m_high", "High (>)", 1, step = 0.1),
                  numericInput("f_over_m_low", "Low (<)", 0.5, step = 0.1),
                  
                  hr(),
-                 h5("B/B0 ratio"),
+                 fluidRow(
+                   column(8, h5("B/B0 ratio")),
+                   column(4, numericInput("weight_b_over_b0", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("b_over_b0_high", "High (<)", 0.25, step = 0.01),
                  numericInput("b_over_b0_low", "Low (>)", 0.4, step = 0.01),
                  
                  hr(),
-                 h5("Survival probability"),
+                 fluidRow(
+                   column(8, h5("Survival probability")),
+                   column(4, numericInput("weight_surv_prob", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
                  numericInput("surv_prob_high", "High (<)", 0.33, step = 0.01),
-                 numericInput("surv_prob_low", "Low (>)", 0.67, step = 0.01)
+                 numericInput("surv_prob_low", "Low (>)", 0.67, step = 0.01),
+                 
+                 hr(),
+                 fluidRow(
+                   column(8, h5("Habitat impact")),
+                   column(4, numericInput("weight_hat_impact", "Weight", 1, min = 0, step = 0.5, width = "100%"))
+                 ),
+                 p("(Categorical: high/mod/low)", style = "font-size: 11px; color: gray;")
         )
       ),
       
@@ -102,7 +207,7 @@ ui = fluidPage(
     ),
     
     mainPanel(
-      width = 9,
+      width = 8,
       
       tabsetPanel(
         id = "main_tabs",
@@ -474,6 +579,46 @@ server = function(input, output, session) {
     
     species_list = create_species_list(df_cat)
     
+    # Apply user-defined weights to all species
+    weight_mapping = list(
+      r = input$weight_r,
+      tmax = input$weight_tmax,
+      lmax = input$weight_lmax,
+      k = input$weight_k,
+      m = input$weight_m,
+      fec = input$weight_fec,
+      breed = input$weight_breed,
+      rec = input$weight_rec,
+      tmat = input$weight_tmat,
+      troph = input$weight_troph,
+      area_over = input$weight_area_over,
+      geog_conc = input$weight_geog_conc,
+      vert_over = input$weight_vert_over,
+      seas_migr = input$weight_seas_migr,
+      school = input$weight_school,
+      morph = input$weight_morph,
+      desire = input$weight_desire,
+      mng_strat = input$weight_mng_strat,
+      f_over_m = input$weight_f_over_m,
+      b_over_b0 = input$weight_b_over_b0,
+      surv_prob = input$weight_surv_prob,
+      hat_impact = input$weight_hat_impact
+    )
+    
+    for (species_name in names(species_list)) {
+      species_df = species_list[[species_name]]
+      
+      # Apply weights from user inputs
+      for (attr_name in names(weight_mapping)) {
+        attr_rows = which(species_df$attribute == attr_name)
+        if (length(attr_rows) > 0) {
+          species_df$weight[attr_rows] = weight_mapping[[attr_name]]
+        }
+      }
+      
+      species_list[[species_name]] = species_df
+    }
+    
     # Store categorized data and species list
     categorized_data(df_cat)
     species_list_data(species_list)
@@ -490,14 +635,7 @@ server = function(input, output, session) {
     
     species_list = species_list_data()
     
-    # Modify weights (r = 2 as in original code)
-    for (species_name in names(species_list)) {
-      species_df = species_list[[species_name]]
-      species_df$weight[species_df$attribute == 'r'] = 2
-      species_list[[species_name]] = species_df
-    }
-    
-    # Apply probability assignments
+    # Apply probability assignments (probabilities override the default 0/1 categorizations)
     probs = probability_assignments()
     if (length(probs) > 0) {
       for (key in names(probs)) {
@@ -547,7 +685,7 @@ server = function(input, output, session) {
         
         if (!is.na(weight) && weight > 0) {
           prodMatrix[, i] = weight * sample(c(3, 2, 1), num_samples, replace = TRUE, 
-                                             prob = c(prob_high, prob_mod, prob_low))
+                                            prob = c(prob_high, prob_mod, prob_low))
         } else {
           prodMatrix[, i] = 0
         }
@@ -564,7 +702,7 @@ server = function(input, output, session) {
         
         if (!is.na(weight) && weight > 0) {
           suscMatrix[, i] = weight * sample(c(3, 2, 1), num_samples, replace = TRUE, 
-                                             prob = c(prob_high, prob_mod, prob_low))
+                                            prob = c(prob_high, prob_mod, prob_low))
         } else {
           suscMatrix[, i] = 0
         }
