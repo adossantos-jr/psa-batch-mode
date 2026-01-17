@@ -3,7 +3,7 @@ if (!require("pacman")) install.packages("pacman")
 pacman::p_load(dplyr, ggplot2, grid, ggrepel, patchwork,
                DT, grid, shiny)
 # UI
-ui <- fluidPage(
+ui = fluidPage(
   titlePanel("Productivity-Susceptibility Analysis (PSA) in batch mode"),
   
   sidebarLayout(
@@ -683,7 +683,10 @@ server = function(input, output, session) {
         prob_low = species_data_numeric$low[i]
         weight = species_data$weight[i]
         
-        if (!is.na(weight) && weight > 0) {
+        # Check if probabilities sum to something positive
+        prob_sum = prob_high + prob_mod + prob_low
+        
+        if (!is.na(weight) && weight > 0 && prob_sum > 0) {
           prodMatrix[, i] = weight * sample(c(3, 2, 1), num_samples, replace = TRUE, 
                                             prob = c(prob_high, prob_mod, prob_low))
         } else {
@@ -700,7 +703,10 @@ server = function(input, output, session) {
         prob_low = species_data_numeric$low[index]
         weight = species_data$weight[index]
         
-        if (!is.na(weight) && weight > 0) {
+        # Check if probabilities sum to something positive
+        prob_sum = prob_high + prob_mod + prob_low
+        
+        if (!is.na(weight) && weight > 0 && prob_sum > 0) {
           suscMatrix[, i] = weight * sample(c(3, 2, 1), num_samples, replace = TRUE, 
                                             prob = c(prob_high, prob_mod, prob_low))
         } else {
