@@ -37,9 +37,10 @@ Due to their qualitative nature, some of the columns are categorical and must be
 Once you have the script open in RStudio, press Ctrl+A to select the whole script and the Ctrl+Enter to run it. The shiny window should appear then. All required packages should be installed/loaded automatically.
 
 Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
-A preview of your data frame should appear like this:
+A preview of your data frame in the app should appear like this:
 
-<img width="670" height="310" alt="preview" src="https://github.com/user-attachments/assets/c1a74050-4a84-44d9-af21-d890957700f4" />
+<img width="868" height="585" alt="ui_psa" src="https://github.com/user-attachments/assets/f0dc3e84-6555-4ce7-aeb8-395d4c394b99" />
+
 
 You can modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use standard attribute and vulnerability thresholds, then just scroll down and click the Run Analysis button.
 
