@@ -1,4 +1,4 @@
-## Productivity-Susceptiblity Analysis (PSA) for multiple species at once in batch mode
+## Productivity-Susceptiblity Analysis (PSA) for multiple species/stocks at once in batch mode
 This is an R shiny app for rapidly performing Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once in a simple batch processing loop. The code for the PSA itself is mostly sourced from the [PSA Web Application at the Fisheries Integrated Toolbox (FIT)](https://nmfs-ost.github.io/noaa-fit/PSA) by the U. S. National Oceanic and Atmospheric Administration (NOAA), developed by Dr. Nathan Vaughan & Dr. Jason Cope. Like in the NOAA PSA Web Application, this routine allows for probabilistic attribute scoring and generates bootstrapping-based confidence intervals. 
 
 ### Instructions
@@ -34,7 +34,7 @@ This routine requires a simple data frame with species as rows and attributes as
 Due to their qualitative nature, some of the columns are categorical and must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples on are available in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). If you leave an attribute column empty, the script will assign the weight of that attribute to 0 and the attribute will not be included in the analysis. 
 
 #### Running the App
-Once you have the script open in RStudio, press Ctrl+A to select the whole script and the Ctrl+Enter to run it. The shiny window should appear then. All required packages should be installed/loaded automatically.
+Once you have the script open in RStudio, press Ctrl+A to select the whole script and the Ctrl+Enter to run it. The shiny window should appear then. All required packages should be installed/loaded automatically. When you first run this app, the automatic package installation may take up to several minutes depending on your internet connection and what packagews you already have installed. After that, it should take a few seconds.
 
 Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
 A preview of your data frame in the app should appear like this:
