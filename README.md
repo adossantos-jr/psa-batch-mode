@@ -6,7 +6,7 @@ This app is built in the R language and runs in your local R server. To use it, 
 
 #### Importing your data
 
-This routine requires a simple data frame with species as rows and attributes as columns. Columns must be named after the column names in the test data frame (`test_psa_data.csv`). Columns must be: 
+This routine requires a simple data frame with species as rows and attributes as columns. Columns must be named after the column names in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). Columns must be: 
 
 - `species`: The name of the species/stocks being evaluated;
  - `r`: Intrinsic rate of population growth;
@@ -31,7 +31,7 @@ This routine requires a simple data frame with species as rows and attributes as
 - `surv_prob`: Survival probability;
 - `hab_impact`: Habitat impact of the fishery.
 
-More information on this set of attributes can be found in the resources.
+Due to their qualitative nature, some of the columns are categorical and must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples on are available in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). If you leave an attribute column empty, the script will assign the weight of that attribute to 0 and the attribute will not be included in the analysis. 
 
 #### Running the App
 Once you have the script open in RStudio, press Ctrl+A to select the whole script and the Ctrl+Enter to run it. The shiny window should appear then. All required packages should be installed/loaded automatically.
@@ -41,7 +41,7 @@ A preview of your data frame should appear like this:
 
 <img width="670" height="310" alt="preview" src="https://github.com/user-attachments/assets/c1a74050-4a84-44d9-af21-d890957700f4" />
 
-You can modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use standard attribute and vulnerability thresholds, then just scroll down and click the Run Analysis buttonç
+You can modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use standard attribute and vulnerability thresholds, then just scroll down and click the Run Analysis button.
 
 And done! This is all needed to run a batch PSA with these standard thresholds and no probabilistic scoring. A pop-window will appear with probabilistic scoring, but you can skip it if you wish. If you wish to modify the attribute thresholds, you can select the species, the attributes and assign the probababilities. 
 
