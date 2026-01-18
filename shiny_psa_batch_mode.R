@@ -11,13 +11,13 @@ ui = fluidPage(
       width = 4,
       
       # 1. Upload data
-      fileInput("datafile", "1. Upload CSV Data File",
+      fileInput("datafile", "1. Upload CSV file",
                 accept = c("text/csv", ".csv")),
       
       hr(),
       
       # 2. Threshold settings
-      h4("2. Adjust Thresholds & Weights"),
+      h4("2. Adjust thresholds & weights"),
       
       tabsetPanel(
         id = "threshold_tabs",
@@ -196,7 +196,7 @@ ui = fluidPage(
       hr(),
       
       # Analysis settings
-      h4("Analysis Settings"),
+      h4("Analysis settings"),
       numericInput("num_samples", "Bootstrap samples", 999, min = 100, step = 100),
       numericInput("vul_high", "High vulnerability (≥)", 2.2, step = 0.1),
       numericInput("vul_low", "Low vulnerability (<)", 1.8, step = 0.1),
@@ -212,21 +212,21 @@ ui = fluidPage(
       tabsetPanel(
         id = "main_tabs",
         
-        tabPanel("Data Preview",
+        tabPanel("Data preview",
                  br(),
                  DTOutput("data_preview")
         ),
         
-        tabPanel("Results Table",
+        tabPanel("Results table",
                  br(),
-                 downloadButton("download_results", "Download Results CSV"),
+                 downloadButton("download_results", "Download results (CSV)"),
                  br(), br(),
                  DTOutput("results_table")
         ),
         
-        tabPanel("PSA Plot",
+        tabPanel("PSA plot",
                  br(),
-                 downloadButton("download_plot", "Download Plot (PNG)"),
+                 downloadButton("download_plot", "Download plot (PNG)"),
                  br(), br(),
                  plotOutput("psa_plot", height = "800px")
         )
@@ -268,7 +268,7 @@ server = function(input, output, session) {
   # Probability assignment modal
   showProbabilityModal = function(species_list, df_cat) {
     showModal(modalDialog(
-      title = "3. Assign Probabilities (Optional)",
+      title = "3. Assign probabilities (optional)",
       size = "l",
       
       fluidRow(
@@ -278,12 +278,12 @@ server = function(input, output, session) {
                               choices = c("", setdiff(names(df_cat), 'species'))))
       ),
       
-      h5("Current Categorization:"),
+      h5("Current categorization:"),
       verbatimTextOutput("current_categorization"),
       
       hr(),
       
-      h5("Set Probabilities:"),
+      h5("Set probabilities:"),
       fluidRow(
         column(4, numericInput("modal_prob_low", "Low", 0, min = 0, max = 1, step = 0.1)),
         column(4, numericInput("modal_prob_mod", "Moderate", 0, min = 0, max = 1, step = 0.1)),
@@ -341,7 +341,7 @@ server = function(input, output, session) {
     # Validate probabilities sum to 1
     total = input$modal_prob_low + input$modal_prob_mod + input$modal_prob_high
     if (abs(total - 1) > 0.01 && total > 0) {
-      showNotification("Warning: Probabilities should sum to 1.0", 
+      showNotification("Warning: pobabilities should sum to 1", 
                        type = "warning", duration = 3)
     }
     
@@ -383,7 +383,7 @@ server = function(input, output, session) {
               p$species, p$attribute, p$low, p$mod, p$high)
     })
     
-    paste("Probability Assignments:\n", 
+    paste("Probability assignments:\n", 
           paste(assignments, collapse = "\n"), sep = "")
   })
   
@@ -855,7 +855,7 @@ server = function(input, output, session) {
     psa_plot(plots_psa)
     
     # Switch to results tab
-    updateTabsetPanel(session, "main_tabs", selected = "Results Table")
+    updateTabsetPanel(session, "main_tabs", selected = "Results table")
   })
   
   # Display results table
