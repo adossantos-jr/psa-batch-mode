@@ -3,11 +3,11 @@ This is an R shiny app for rapidly performing Productivity-Susceptibility Analys
 
 ### Instructions
 #### Running the app
-This app is built in the R language and runs in your local R server. To use it, you must download and install the latest version of [R](https://www.r-project.org/). You can then download the [R script file](https://github.com/adossantos-jr/psa-batch-mode/blob/main/shiny_psa_batch_mode.R) and run it in your terminal. 
+This app is built in the R language and runs on your local R server. To use it, you must download and install the latest version of [R](https://www.r-project.org/). You can then download the [R script file](https://github.com/adossantos-jr/psa-batch-mode/blob/main/shiny_psa_batch_mode.R) and run it on your terminal. 
 
-Using an Integrated Development Environment (IDE) such as [RStudio](https://posit.co/download/rstudio-desktop/) is recommended. If you have the script open in RStudio or a similar IDE, press Ctrl+A to select the whole script and the Ctrl+Enter to run it. The shiny window should appear then. 
+Using an Integrated Development Environment (IDE) such as [RStudio](https://posit.co/download/rstudio-desktop/) is recommended. If you have the script open in RStudio or a similar IDE, press Ctrl+A to select the whole script and the Ctrl+Enter to run it. The app window should appear then. 
 
-All required packages should be installed/loaded automatically. When you first run this app, the automatic package installation may take up to several minutes depending on your internet connection and what packagews you already have installed. After that, it should take a few seconds.
+All required packages should be installed/loaded automatically. When you first run this app, the automatic package installation may take up to several minutes depending on your internet connection and what packages you already have installed. After that, it should take a few seconds.
 
 #### Using the app
 
