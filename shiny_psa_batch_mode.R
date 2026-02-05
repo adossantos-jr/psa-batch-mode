@@ -1,4 +1,3 @@
-
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(dplyr, ggplot2, grid, ggrepel, patchwork,
                DT, grid, shiny)
@@ -341,7 +340,7 @@ server = function(input, output, session) {
     # Validate probabilities sum to 1
     total = input$modal_prob_low + input$modal_prob_mod + input$modal_prob_high
     if (abs(total - 1) > 0.01 && total > 0) {
-      showNotification("Warning: pobabilities should sum to 1", 
+      showNotification("Warning: probabilities should sum to 1", 
                        type = "warning", duration = 3)
     }
     
@@ -690,11 +689,20 @@ server = function(input, output, session) {
           prodMatrix[, i] = weight * sample(c(3, 2, 1), num_samples, replace = TRUE, 
                                             prob = c(prob_high, prob_mod, prob_low))
         } else {
-          prodMatrix[, i] = 0
+          # Set to NA instead of 0 to exclude from calculation
+          prodMatrix[, i] = NA
         }
       }
       
-      prodMatrix[, num_prod_attr + 1] = apply(prodMatrix[, 1:num_prod_attr], 1, sum) / sumProdWeights
+      # Calculate mean excluding NAs
+      prodMatrix[, num_prod_attr + 1] = apply(prodMatrix[, 1:num_prod_attr], 1, function(row) {
+        valid_values = row[!is.na(row)]
+        if (length(valid_values) > 0) {
+          sum(valid_values) / sum(species_data$weight[1:num_prod_attr][!is.na(row)])
+        } else {
+          NA
+        }
+      })
       
       for (i in 1:num_susc_attr) {
         index = num_prod_attr + i
@@ -710,11 +718,21 @@ server = function(input, output, session) {
           suscMatrix[, i] = weight * sample(c(3, 2, 1), num_samples, replace = TRUE, 
                                             prob = c(prob_high, prob_mod, prob_low))
         } else {
-          suscMatrix[, i] = 0
+          # Set to NA instead of 0 to exclude from calculation
+          suscMatrix[, i] = NA
         }
       }
       
-      suscMatrix[, num_susc_attr + 1] = apply(suscMatrix[, 1:num_susc_attr], 1, sum) / sumSuscWeights
+      # Calculate mean excluding NAs
+      suscMatrix[, num_susc_attr + 1] = apply(suscMatrix[, 1:num_susc_attr], 1, function(row) {
+        valid_values = row[!is.na(row)]
+        if (length(valid_values) > 0) {
+          valid_indices = which(!is.na(row))
+          sum(valid_values) / sum(species_data$weight[(num_prod_attr + 1):(num_prod_attr + num_susc_attr)][valid_indices])
+        } else {
+          NA
+        }
+      })
       
       vuln = sqrt((((3 - prodMatrix[, num_prod_attr + 1])^2) + ((suscMatrix[, num_susc_attr + 1] - 1)^2)))
       
@@ -855,7 +873,7 @@ server = function(input, output, session) {
     psa_plot(plots_psa)
     
     # Switch to results tab
-    updateTabsetPanel(session, "main_tabs", selected = "Results table")
+    updateTabsetPanel(session, "main_tabs", selected = "Results Table")
   })
   
   # Display results table
@@ -894,3 +912,4 @@ server = function(input, output, session) {
 
 # Run the app
 shinyApp(ui = ui, server = server)
+    
