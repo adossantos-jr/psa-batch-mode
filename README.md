@@ -60,7 +60,7 @@ As of right now, this PSA shiny lacks the data quality index based on the number
 
 ### Resources
 
-Main reference used in this PSA approach: *Patrick, W. S., Spencer, P., Ormseth, O. A., Cope, J. M., Field, J. C., Kobayashi, D. R., ... & Lawson, A. (2009). Use of productivity and susceptibility indices to determine stock vulnerability, with example applications to six US fisheries* 
+Main reference used in this PSA approach: [*Patrick, W. S., Spencer, P., Ormseth, O. A., Cope, J. M., Field, J. C., Kobayashi, D. R., ... & Lawson, A. (2009). Use of productivity and susceptibility indices to determine stock vulnerability, with example applications to six US fisheries*](https://media.fisheries.noaa.gov/dam-migration/ns1-patrick-et-al-2010.pdf) 
  
 [NOAA FIT (Fisheries Integrated Toolbox) PSA Web Application](https://nmfs-ost.github.io/noaa-fit/PSA)
 
