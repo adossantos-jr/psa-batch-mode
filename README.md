@@ -32,7 +32,7 @@ This routine requires a simple data frame with species as rows and attributes as
 - `desire`: Desirability of the species/stock;
 - `mng_strat`: Management strategy;
 - `f_over_m`: Fishing mortality in relation to natural mortalilty;
-- `b_over_b0`: Stock biomass in relation to virgin biomass;
+- `b_over_b0`: Stock biomass in relation to "virgin" biomass;
 - `surv_prob`: Survival probability;
 - `hab_impact`: Habitat impact of the fishery.
 
