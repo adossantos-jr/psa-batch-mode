@@ -32,7 +32,8 @@ threshold_defaults = list(
 
 create_empty_species_list = function(species_names) {
   lapply(setNames(as.list(species_names), species_names), function(sp) {
-    data.frame(attribute = all_attributes, low = 0, mod = 0, high = 0, weight = 1, stringsAsFactors = FALSE)
+    # Added "source" column to track FishLife vs CSV vs Manual scoring
+    data.frame(attribute = all_attributes, low = 0, mod = 0, high = 0, weight = 1, source = "None", stringsAsFactors = FALSE)
   })
 }
 
@@ -98,7 +99,7 @@ ui = fluidPage(
       fileInput("file_csv", "Choose CSV file", accept = ".csv"),
       hr(),
       tags$h4(tags$b("Step 1: Set attribute thresholds"), style = "color: #337ab7; margin-bottom: 12px;"),
-      tags$p("Define thresholds (Low to Moderate / Moderate to High) for parameters:", style = "font-size: 12px; color: #666;"),
+      tags$p("Define thresholds (Low to Moderate / Moderate to High) for attributes:", style = "font-size: 12px; color: #666;"),
       
       tags$div(
         style = "max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #fafafa; border-radius: 4px; margin-bottom: 15px;",
@@ -122,20 +123,41 @@ ui = fluidPage(
                  tags$br(),
                  wellPanel(
                    style = "border: 2px solid #f0ad4e;",
-                   tags$h4(tags$b("Step 2: Batch autofill options"), style = "color: #f0ad4e;"),
+                   tags$h4(tags$b("Step 2: Batch score options"), style = "color: #f0ad4e;"),
                    tags$p("CSV attributes map automatically upon upload."),
-                   actionButton("bulk_autofill_fl", "Autofill life-history traits via FishLife (all Species)", class = "btn-warning", style = "width:100%; font-weight:bold;")
+                   actionButton("bulk_score_fl", "Score life-history traits via FishLife (all species)", class = "btn-warning", style = "width:100%; font-weight:bold;")
                  ),
                  uiOutput("step3_panel")
         ),
         tabPanel("PSA Plots", 
+                 tags$br(),
+                 downloadButton("dl_psa_plot", "Download PSA Plot (PNG)"),
+                 tags$br(), tags$br(),
                  plotOutput("psa_plot", height = "600px"),
+                 tags$hr(),
+                 downloadButton("dl_density_plot", "Download Prod. Density Plot (PNG)"),
+                 tags$br(), tags$br(),
                  plotOutput("density_plot", height = "400px")),
         tabPanel("Category Proportions Plot",
+                 tags$br(),
+                 downloadButton("dl_proportions_plot", "Download Proportions Plot (PNG)"),
+                 tags$br(), tags$br(),
                  plotOutput("proportions_plot", height = "500px")),
-        tabPanel("Results Summary", DTOutput("results_table")),
-        tabPanel("Vulnerability Outcomes", DTOutput("probs_table")),
-        tabPanel("Attribute Probability Table", DTOutput("fishlife_matrix"))
+        tabPanel("Results Summary", 
+                 tags$br(),
+                 downloadButton("dl_results_table", "Download CSV"),
+                 tags$br(), tags$br(),
+                 DTOutput("results_table")),
+        tabPanel("Vulnerability Outcomes", 
+                 tags$br(),
+                 downloadButton("dl_probs_table", "Download CSV"),
+                 tags$br(), tags$br(),
+                 DTOutput("probs_table")),
+        tabPanel("Attribute Probability Table", 
+                 tags$br(),
+                 downloadButton("dl_fishlife_matrix", "Download CSV"),
+                 tags$br(), tags$br(),
+                 DTOutput("fishlife_matrix"))
       )
     )
   )
@@ -227,7 +249,7 @@ server = function(input, output, session) {
   })
   
   # Master CSV Extraction function handling BOTH numerics and defined character mappings
-  autofill_single_attr_from_csv = function(sp, attr) {
+  score_single_attr_from_csv = function(sp, attr) {
     req(reactive_data$df)
     row_data = reactive_data$df[reactive_data$df$species == sp, ][1, ]
     idx = which(reactive_data$species_list[[sp]]$attribute == attr)
@@ -252,6 +274,7 @@ server = function(input, output, session) {
         reactive_data$species_list[[sp]]$low[idx]  = ifelse(mag == "low", 1, 0)
         reactive_data$species_list[[sp]]$mod[idx]  = ifelse(mag == "mod", 1, 0)
         reactive_data$species_list[[sp]]$high[idx] = ifelse(mag == "high", 1, 0)
+        reactive_data$species_list[[sp]]$source[idx] = "CSV"
         
       } else {
         # 2. Numerical Threshold Check Logic
@@ -269,10 +292,12 @@ server = function(input, output, session) {
           reactive_data$species_list[[sp]]$low[idx]  = ifelse(mag == "low", 1, 0)
           reactive_data$species_list[[sp]]$mod[idx]  = ifelse(mag == "mod", 1, 0)
           reactive_data$species_list[[sp]]$high[idx] = ifelse(mag == "high", 1, 0)
+          reactive_data$species_list[[sp]]$source[idx] = "CSV"
         } else {
           reactive_data$species_list[[sp]]$low[idx]  = 0
           reactive_data$species_list[[sp]]$mod[idx]  = 0
           reactive_data$species_list[[sp]]$high[idx] = 0
+          reactive_data$species_list[[sp]]$source[idx] = "CSV"
         }
       }
     }
@@ -288,10 +313,10 @@ server = function(input, output, session) {
     
     for (sp in sp_names) {
       for (attr in all_attributes) {
-        autofill_single_attr_from_csv(sp, attr)
+        score_single_attr_from_csv(sp, attr)
       }
     }
-    showNotification("Source mapped.", type = "message")
+    showNotification("Done!", type = "message")
   })
   
   get_threshold_inputs = function() {
@@ -305,16 +330,16 @@ server = function(input, output, session) {
     t_inputs
   }
   
-  observeEvent(input$bulk_autofill_fl, {
+  observeEvent(input$bulk_score_fl, {
     req(reactive_data$df)
     sp_names = unique(reactive_data$df$species)
     t_inputs = get_threshold_inputs()
     
     failed_species = c()
-    withProgress(message = 'Extracting scores via FishLife...', value = 0, {
+    withProgress(message = 'Scoring via FishLife...', value = 0, {
       for (i in seq_along(sp_names)) {
         sp = sp_names[i]
-        setProgress(value = i / length(sp_names), detail = paste("Querying taxonomy mapping:", sp))
+        setProgress(value = i / length(sp_names), detail = paste("querying:", sp))
         
         res = fetch_fishlife_single(sp)
         if (is.null(res)) {
@@ -331,12 +356,15 @@ server = function(input, output, session) {
             reactive_data$species_list[[sp]]$low[idx]  = round(probs[[attr]]$low, 4)
             reactive_data$species_list[[sp]]$mod[idx]  = round(probs[[attr]]$mod, 4)
             reactive_data$species_list[[sp]]$high[idx] = round(probs[[attr]]$high, 4)
+            reactive_data$species_list[[sp]]$source[idx] = "FishLife"
           }
         }
       }
     })
     if (length(failed_species) > 0) {
       showNotification(paste("Omitted variants:", paste(failed_species, collapse = ", ")), type = "warning")
+    } else {
+      showNotification("Successfully scored all species via FishLife.", type = "message")
     }
   })
   
@@ -347,7 +375,7 @@ server = function(input, output, session) {
     
     res = fetch_fishlife_single(sp)
     if(is.null(res)) {
-      showNotification(paste("FishLife txon matching failed: try another name", sp), type = "error")
+      showNotification(paste("FishLife taxon matching failed: try another name.", sp), type = "error")
       return()
     }
     
@@ -361,21 +389,22 @@ server = function(input, output, session) {
           reactive_data$species_list[[sp]]$low[idx]  = round(probs[[attr]]$low, 4)
           reactive_data$species_list[[sp]]$mod[idx]  = round(probs[[attr]]$mod, 4)
           reactive_data$species_list[[sp]]$high[idx] = round(probs[[attr]]$high, 4)
+          reactive_data$species_list[[sp]]$source[idx] = "FishLife"
         }
       } else {
-        autofill_single_attr_from_csv(sp, attr)
+        score_single_attr_from_csv(sp, attr)
       }
     }
-    showNotification(paste("Score attributes via FishLife; non-FishLife attributes retained CSV configuration for", sp), type = "message")
+    showNotification(paste("Scored attributes via FishLife:", sp), type = "message")
   })
   
   observeEvent(input$reset_species_csv_btn, {
     req(input$tweak_sp_selector)
     sp = input$tweak_sp_selector
     for (attr in all_attributes) {
-      autofill_single_attr_from_csv(sp, attr)
+      score_single_attr_from_csv(sp, attr)
     }
-    showNotification(paste("Successfully re-autofilled all attributes from CSV data for:", sp), type = "message")
+    showNotification(paste("Successfully re-scored all attributes from CSV data for:", sp), type = "message")
   })
   
   lapply(all_attributes, function(target_attr) {
@@ -399,19 +428,20 @@ server = function(input, output, session) {
             reactive_data$species_list[[sp]]$low[idx]  = round(probs[[target_attr]]$low, 4)
             reactive_data$species_list[[sp]]$mod[idx]  = round(probs[[target_attr]]$mod, 4)
             reactive_data$species_list[[sp]]$high[idx] = round(probs[[target_attr]]$high, 4)
-            showNotification(paste("Scored single attribute [", target_attr, "] via FishLife."), type = "message")
+            reactive_data$species_list[[sp]]$source[idx] = "FishLife"
+            showNotification(paste("Scored [", target_attr, "] via FishLife."), type = "message")
           }
         }
       } else {
-        autofill_single_attr_from_csv(sp, target_attr)
-        showNotification(paste("Reset single attribute [", target_attr, "] back to CSV data."), type = "message")
+        score_single_attr_from_csv(sp, target_attr)
+        showNotification(paste("Re-scored [", target_attr, "] through CSV data."), type = "message")
       }
     })
   })
   
   output$step3_panel = renderUI({
     if(!reactive_data$initialized) {
-      return(wellPanel(tags$em("Provide source configurations")))
+      return(wellPanel(tags$em("Modify specific data")))
     }
     wellPanel(
       style = "border: 2px solid #5cb85c;",
@@ -420,8 +450,8 @@ server = function(input, output, session) {
       
       fluidRow(
         column(4, selectInput("tweak_sp_selector", "Target scope:", choices = names(reactive_data$species_list))),
-        column(4, style = "margin-top: 25px;", actionButton("fetch_full_species_fl", "Retrieve FishLife estimates", class = "btn-info", style="width:100%; font-weight:bold;")),
-        column(4, style = "margin-top: 25px;", actionButton("reset_species_csv_btn", "Re-autofill with CSV data", class = "btn-warning", style="width:100%; font-weight:bold;"))
+        column(4, style = "margin-top: 25px;", actionButton("fetch_full_species_fl", "Score via FishLife", class = "btn-info", style="width:100%; font-weight:bold;")),
+        column(4, style = "margin-top: 25px;", actionButton("reset_species_csv_btn", "Re-score with CSV data", class = "btn-warning", style="width:100%; font-weight:bold;"))
       ),
       hr(),
       uiOutput("individual_tweak_grid"),
@@ -444,7 +474,7 @@ server = function(input, output, session) {
         style = "max-height: 380px; overflow-y: auto; overflow-x: hidden; padding-right: 10px;",
         lapply(all_attributes, function(attr) {
           row_data = sp_df[sp_df$attribute == attr, ]
-          if(nrow(row_data) == 0) row_data = data.frame(low=0, mod=0, high=0, weight=1)
+          if(nrow(row_data) == 0) row_data = data.frame(low=0, mod=0, high=0, weight=1, source="None")
           
           btn_label = if(attr %in% fl_sub_attrs) paste0("Fetch ", attr) else "Reset to CSV"
           fl_action_btn = actionLink(paste0("fetch_single_attr_", attr), btn_label, style = "font-size:11px; font-weight:bold; display:block; margin-top:8px;")
@@ -478,6 +508,9 @@ server = function(input, output, session) {
       if(!is.null(m_val)) reactive_data$species_list[[sp]]$mod[idx]  = m_val
       if(!is.null(h_val)) reactive_data$species_list[[sp]]$high[idx] = h_val
       if(!is.null(w_val)) reactive_data$species_list[[sp]]$weight[idx] = w_val
+      
+      # Flag it as manually tweaked
+      reactive_data$species_list[[sp]]$source[idx] = "Manual"
     }
     showNotification(paste("Modification saved for:", sp), type = "message")
   })
@@ -551,10 +584,21 @@ server = function(input, output, session) {
       results_df = do.call(rbind, lapply(names(vulnerability_scores), function(sp) {
         v = vulnerability_scores[[sp]]
         taxon = reactive_data$matched_taxa[[sp]]
+        
+        # Calculate precise FishLife scoring status based on tracking matrix
+        fl_count = sum(sp_list[[sp]]$source[sp_list[[sp]]$attribute %in% fl_sub_attrs] == "fishlife_score")
+        fl_status = "no_fishlife"
+        if (fl_count == length(fl_sub_attrs)) {
+          fl_status = "full_fishlife"
+        } else if (fl_count > 0) {
+          fl_status = "partial_fishlife"
+        }
+        
         data.frame(
           species             = sp,
           matched_taxon       = if(is.null(taxon)) NA else taxon,
           has_fishlife        = if(is.null(taxon)) FALSE else TRUE,
+          fishlife_scoring_status = fl_status,
           mean_productivity   = mean(v$productivity),
           lci_productivity    = quantile(v$productivity,  0.025),
           uci_productivity    = quantile(v$productivity,  0.975),
@@ -591,7 +635,8 @@ server = function(input, output, session) {
         data.frame(
           species = sp, attribute = sub_d$attribute,
           prob_low = sub_d$low, prob_mod = sub_d$mod, prob_high = sub_d$high,
-          expected_score = sub_d$low * 1 + sub_d$mod * 2 + sub_d$high * 3, row.names = NULL
+          expected_score = sub_d$low * 1 + sub_d$mod * 2 + sub_d$high * 3,
+          source_type = sub_d$source, row.names = NULL
         )
       }))
       
@@ -610,11 +655,11 @@ server = function(input, output, session) {
     
     # After calculating, forcefully jump user screen to the PSA Plots tab
     updateTabsetPanel(session, "main_tabs", selected = "PSA Plots")
-    showNotification("Simulation Complete!", type = "message")
+    showNotification("Done!", type = "message")
   })
   
-  # --- GRAPH RENDERING ---
-  output$psa_plot = renderPlot({
+  # --- GRAPH RENDERING EXTRACTED INTO REACTIVES ---
+  build_psa_plot <- reactive({
     req(reactive_data$psa_results)
     res = reactive_data$psa_results
     results_df = res$results_df
@@ -647,26 +692,27 @@ server = function(input, output, session) {
       scale_x_continuous(limits = c(1, 3), breaks = seq(1, 3, 0.5)) +
       theme_bw() + theme(axis.text = element_text(color = "black"), legend.position = "bottom")
     
-    psa_main / (hist_plot + plot_spacer() + plot_layout(widths = c(1, 0.2))) + plot_layout(heights = c(1, 0.5))
+    final_plot = psa_main / (hist_plot + plot_spacer() + plot_layout(widths = c(1, 0.2))) + plot_layout(heights = c(1, 0.5))
+    return(final_plot)
   })
   
-  output$density_plot = renderPlot({
+  build_density_plot <- reactive({
     req(reactive_data$psa_results)
     res = reactive_data$psa_results
-    ggplot(res$prod_density_df, aes(x = productivity, fill = species, color = species)) +
+    final_plot = ggplot(res$prod_density_df, aes(x = productivity, fill = species, color = species)) +
       geom_density(alpha = 0.35, linewidth = 0.7) +
       geom_vline(data = res$results_df, aes(xintercept = mean_productivity, color = species), linetype = "dashed", linewidth = 0.6) +
       labs(x = "Productivity score", y = "Density", fill = "", color = "") +
       scale_x_continuous(limits = c(1, 3), breaks = seq(1, 3, 0.5)) +
       theme_bw() + theme(axis.text = element_text(color = "black"), legend.text = element_text(face = "italic"), legend.position = "bottom")
+    return(final_plot)
   })
   
-  output$proportions_plot = renderPlot({
+  build_proportions_plot <- reactive({
     req(reactive_data$psa_results)
     raw_probs = reactive_data$psa_results$probs_df
     res_df = reactive_data$psa_results$results_df
     
-    # Sort species names by ascending mean vulnerability
     ordered_species = res_df[order(res_df$mean_vulnerability), "species"]
     
     plot_data = raw_probs %>%
@@ -685,7 +731,7 @@ server = function(input, output, session) {
         species = factor(species, levels = ordered_species)
       )
     
-    ggplot(plot_data, aes(x = species, y = proportion, fill = vul_category)) +
+    final_plot = ggplot(plot_data, aes(x = species, y = proportion, fill = vul_category)) +
       geom_bar(stat = "identity", width = 1) +
       scale_fill_manual(values = c(Low = "greenyellow", Moderate = "orange", High = "red2"), name = "Vulnerability") +
       labs(x = "Species by vulnerability", y = "Proportion of bootstrap samples") +
@@ -694,8 +740,15 @@ server = function(input, output, session) {
         axis.text.x = element_text(angle = 45, hjust = 1, face = "italic", color = "black"),
         axis.text.y = element_text(color = "black")
       )
+    return(final_plot)
   })
   
+  # Render Plots
+  output$psa_plot = renderPlot({ build_psa_plot() })
+  output$density_plot = renderPlot({ build_density_plot() })
+  output$proportions_plot = renderPlot({ build_proportions_plot() })
+  
+  # Render Tables
   output$results_table = renderDT({
     req(reactive_data$psa_results)
     datatable(reactive_data$psa_results$results_df, rownames = FALSE)
@@ -710,6 +763,54 @@ server = function(input, output, session) {
     req(reactive_data$psa_results)
     datatable(reactive_data$psa_results$fishlife_scores_df, rownames = FALSE)
   })
+  
+  # --- DOWNLOAD HANDLERS ---
+  
+  output$dl_psa_plot <- downloadHandler(
+    filename = function() { paste0("PSA_Plot_", Sys.Date(), ".png") },
+    content = function(file) {
+      # Made the height slightly taller as requested
+      ggsave(file, plot = build_psa_plot(), width = 7, height = 10, dpi = 300)
+    }
+  )
+  
+  output$dl_density_plot <- downloadHandler(
+    filename = function() { paste0("Prod_Density_Plot_", Sys.Date(), ".png") },
+    content = function(file) {
+      ggsave(file, plot = build_density_plot(), width = 10, height = 6, dpi = 300)
+    }
+  )
+  
+  output$dl_proportions_plot <- downloadHandler(
+    filename = function() { paste0("Proportions_Plot_", Sys.Date(), ".png") },
+    content = function(file) {
+      ggsave(file, plot = build_proportions_plot(), width = 10, height = 7, dpi = 300)
+    }
+  )
+  
+  output$dl_results_table <- downloadHandler(
+    filename = function() { paste0("Results_Summary_", Sys.Date(), ".csv") },
+    content = function(file) {
+      req(reactive_data$psa_results)
+      write.csv(reactive_data$psa_results$results_df, file, row.names = FALSE)
+    }
+  )
+  
+  output$dl_probs_table <- downloadHandler(
+    filename = function() { paste0("Vulnerability_Outcomes_", Sys.Date(), ".csv") },
+    content = function(file) {
+      req(reactive_data$psa_results)
+      write.csv(reactive_data$psa_results$probs_df, file, row.names = FALSE)
+    }
+  )
+  
+  output$dl_fishlife_matrix <- downloadHandler(
+    filename = function() { paste0("Attribute_Probability_Table_", Sys.Date(), ".csv") },
+    content = function(file) {
+      req(reactive_data$psa_results)
+      write.csv(reactive_data$psa_results$fishlife_scores_df, file, row.names = FALSE)
+    }
+  )
 }
 
 shinyApp(ui, server)
