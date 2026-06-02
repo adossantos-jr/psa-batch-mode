@@ -784,7 +784,7 @@ server = function(input, output, session) {
   output$dl_proportions_plot <- downloadHandler(
     filename = function() { paste0("Proportions_Plot_", Sys.Date(), ".png") },
     content = function(file) {
-      ggsave(file, plot = build_proportions_plot(), width = 10, height = 7, dpi = 300)
+      ggsave(file, plot = build_proportions_plot(), width = 10, height = 5, dpi = 300)
     }
   )
   
