@@ -1,5 +1,5 @@
 ## Productivity-Susceptiblity Analysis (PSA) for multiple species/stocks at once in batch mode
-This is an R shiny app for rapidly performing Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once in a simple batch processing loop. The code for the PSA itself is mostly sourced from the [PSA Web Application at the Fisheries Integrated Toolbox (FIT)](https://nmfs-ost.github.io/noaa-fit/PSA) by the U. S. National Oceanic and Atmospheric Administration (NOAA), developed by Dr. Nathan Vaughan & Dr. Jason Cope. Like in the NOAA PSA Web Application, this routine allows for probabilistic attribute scoring and generates bootstrapping-based confidence intervals if scored using probabilities. 
+This is an R shiny app for rapidly running Productivity-Susceptibility Analysis (PSA) for multiple species/stocks at once in a simple batch processing loop. The code for the PSA itself is mostly sourced from the [PSA Web Application at the Fisheries Integrated Toolbox (FIT)](https://nmfs-ost.github.io/noaa-fit/PSA) by the U. S. National Oceanic and Atmospheric Administration (NOAA), developed by Dr. Nathan Vaughan & Dr. Jason Cope. Like in the NOAA PSA Web Application, this routine allows for probabilistic attribute scoring and generates bootstrapping-based confidence intervals if scored using probabilities. This app also adds the possibility of directly retrieveing meta-analytical ([FishLife](https://github.com/James-Thorson-NOAA/FishLife)) attributes for probabilistic socring based on prediction densities. To learn more about FishLife, see [here](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/eap.1606) and [here](https://onlinelibrary.wiley.com/doi/abs/10.1111/faf.12427).
 
 ### Instructions
 #### Running the app
@@ -17,7 +17,8 @@ This routine requires a simple data frame with species as rows and attributes as
  - `r`: Intrinsic rate of population growth;
 - `tmax`: Maximum age;
  - `lmax`: Maxium length;
-- `k`: Von Bertalanffy Growth Coefficient;
+- `k`: von Bertalanffy growth coefficient;
+-  `m`: Natural mortality rate; 
 - `fec`: Measured fecundity;
 - `breed`: Winemiller's index (breeding strategy quantificaton);
 - `rec`: Frequency of recruitment;
@@ -38,30 +39,35 @@ This routine requires a simple data frame with species as rows and attributes as
 
 These attributes follow [Patrick et al.(2009)](https://media.fisheries.noaa.gov/dam-migration/ns1-patrick-et-al-2010.pdf); you do not need to score all of them to run a PSA. Due to their qualitative nature, some of the columns are categorical and must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples on are available in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). If you leave an attribute column empty, the script will assign the weight of that attribute to 0 and the attribute will not be included in the analysis. 
 
-Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R.
-A preview of your data frame in the app should appear like this:
+Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R. When you upload your data, attributes will be automatically scored based on the default thresholds. 
 
-<img width="868" height="585" alt="ui_psa" src="https://github.com/user-attachments/assets/f0dc3e84-6555-4ce7-aeb8-395d4c394b99" />
+<img width="1091" height="690" alt="ui_psa" src="https://github.com/user-attachments/assets/23915d0e-c38d-4c5a-b4f7-0193040b3bc4" />
 
 
-You can modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use standard attribute and vulnerability thresholds, then just scroll down and click the Run Analysis button.
+You can modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use standard attribute and vulnerability thresholds, just scroll down and click the Run PSA  button.
 
-And done! This is all needed to run a batch PSA with these standard thresholds and no probabilistic scoring. A pop-window will appear with probabilistic scoring, but you can skip it if you wish. If you wish to modify the attribute thresholds, you can select the species, the attributes and assign the probababilities. 
+<img width="1087" height="690" alt="ui_psa2" src="https://github.com/user-attachments/assets/daf0db2f-9a34-4767-9f11-74286cdb63de" />
 
-- Remember, probability scoring should always sum to 1;
-- Remember to always click on "Assign Probability" after each scoring.
 
-The graphical output should look like this:
+And done! This is all needed to run a batch PSA with these standard thresholds and no probabilistic scoring. If you wish to modify the attribute thresholds, you can select the species, the attributes and assign the probababilities. You can batch autoscore productivity attributes with FishLife probabilistic densities for all species at one, or you can select attributes and species to autoscore with FishLife before running the PSA. Attributes that can be retrieved from FishLife to score productivity are `r`, `tmax`, `k`, `m` and `tmat`. 
 
-<img width="300" height="500" alt="plots_psa" src="https://github.com/user-attachments/assets/dd92d597-2319-4a4e-8fec-cd7f4bcca557" />
+Some graphical outputs should look like this:
+
+<img width="525" height="750" alt="PSA_Plot_2026-06-02" src="https://github.com/user-attachments/assets/d3b22be2-f44b-4c1d-8762-d639c07d4ac8" />
+<img width="750" height="375" alt="Proportions_Plot_2026-06-02" src="https://github.com/user-attachments/assets/22389277-433d-4d1e-b464-06debdee3c70" />
+
 
 ### Limitations
-As of right now, this PSA shiny lacks the data quality index based on the number of attributes used. For now, when using this app, you should either use an equal number of attributes for all species, or manually assign the data quality index. The data quality index will be implemented in the future.
+As of right now, this PSA shiny lacks the data quality index based on the number of attributes used. For now, when using this app, you should either use an equal number of attributes for all species, use the taxonomic level of FishLife estimates, or manually assign the data quality index.
 
 ### Resources
 
 Main reference used in this PSA approach: [*Patrick, W. S., Spencer, P., Ormseth, O. A., Cope, J. M., Field, J. C., Kobayashi, D. R., ... & Lawson, A. (2009). Use of productivity and susceptibility indices to determine stock vulnerability, with example applications to six US fisheries*](https://media.fisheries.noaa.gov/dam-migration/ns1-patrick-et-al-2010.pdf) 
  
 [NOAA FIT (Fisheries Integrated Toolbox) PSA Web Application](https://nmfs-ost.github.io/noaa-fit/PSA)
+
+[FishLife tool](https://github.com/James-Thorson-NOAA/FishLife)
+
+
 
 [PSA code & probabilistic scoring source](https://github.com/nathanvaughan1/PSA)
