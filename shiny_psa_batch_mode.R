@@ -92,13 +92,13 @@ df_col = {
 }
 
 ui = fluidPage(
-  titlePanel("PSA Tool with Categorical Robust Auto-Ingestion"),
+  titlePanel("PSA in batch mode"),
   sidebarLayout(
     sidebarPanel(
-      fileInput("file_csv", "Choose CSV File", accept = ".csv"),
+      fileInput("file_csv", "Step 1: choose CSV file", accept = ".csv"),
       hr(),
-      tags$h4(tags$b("Step 1: Set Global Attribute Thresholds"), style = "color: #337ab7; margin-bottom: 12px;"),
-      tags$p("Define baseline dynamic boundaries (low to Mod / mod to high) for parameters:", style = "font-size: 12px; color: #666;"),
+      tags$h4(tags$b("Step 1: Set attribute thresholds"), style = "color: #337ab7; margin-bottom: 12px;"),
+      tags$p("Define thresholds (Low to Moderate / Moderate to High) for parameters:", style = "font-size: 12px; color: #666;"),
       
       tags$div(
         style = "max-height: 400px; overflow-y: auto; border: 1px solid #ddd; padding: 10px; background-color: #fafafa; border-radius: 4px; margin-bottom: 15px;",
@@ -107,24 +107,24 @@ ui = fluidPage(
           fluidRow(
             style = "margin-bottom: 8px; padding-bottom: 4px; border-bottom: 1px dashed #eee;",
             column(4, tags$b(attr, style = "font-size: 13px; display: block; margin-top: 10px;")),
-            column(4, style = 'padding:2px;', numericInput(paste0("g_t_", attr, "_1"), "low to Mod", value = defs[1])),
-            column(4, style = 'padding:2px;', numericInput(paste0("g_t_", attr, "_2"), "mod to high", value = defs[2]))
+            column(4, style = 'padding:2px;', numericInput(paste0("g_t_", attr, "_1"), "Low to Moderate", value = defs[1])),
+            column(4, style = 'padding:2px;', numericInput(paste0("g_t_", attr, "_2"), "Moderate to High", value = defs[2]))
           )
         })
       ),
       hr(),
-      actionButton("run_analysis", "Run PSA Analysis", class = "btn-success", style = "width:100%; font-size: 14px; font-weight: bold; padding: 12px;")
+      actionButton("run_analysis", "Run PSA", class = "btn-success", style = "width:100%; font-size: 14px; font-weight: bold; padding: 12px;")
     ),
     mainPanel(
       tabsetPanel(
         id = "main_tabs",
-        tabPanel("1. Configuration Pipeline",
+        tabPanel("Configuration",
                  tags$br(),
                  wellPanel(
                    style = "border: 2px solid #f0ad4e;",
-                   tags$h4(tags$b("Step 2: Global Bulk Autofill Operations"), style = "color: #f0ad4e;"),
-                   tags$p("CSV parameters map automatically upon upload. Trigger FishLife models below to adjust life-history parameters globally:"),
-                   actionButton("bulk_autofill_fl", "Autofill Life-History Traits via FishLife (All Species)", class = "btn-warning", style = "width:100%; font-weight:bold;")
+                   tags$h4(tags$b("Step 2: Batch autofill options"), style = "color: #f0ad4e;"),
+                   tags$p("CSV attributes map automatically upon upload."),
+                   actionButton("bulk_autofill_fl", "Autofill life-history traits via FishLife (all Species)", class = "btn-warning", style = "width:100%; font-weight:bold;")
                  ),
                  uiOutput("step3_panel")
         ),
@@ -134,8 +134,8 @@ ui = fluidPage(
         tabPanel("Category Proportions Plot",
                  plotOutput("proportions_plot", height = "500px")),
         tabPanel("Results Summary", DTOutput("results_table")),
-        tabPanel("Vulnerability Probabilities", DTOutput("probs_table")),
-        tabPanel("FishLife Probability Matrix", DTOutput("fishlife_matrix"))
+        tabPanel("Vulnerability Outcomes", DTOutput("probs_table")),
+        tabPanel("Attribute Probability Table", DTOutput("fishlife_matrix"))
       )
     )
   )
@@ -291,7 +291,7 @@ server = function(input, output, session) {
         autofill_single_attr_from_csv(sp, attr)
       }
     }
-    showNotification("Source Matrix mapped. All variables populated utilizing accurate logic thresholds.", type = "message")
+    showNotification("Source mapped.", type = "message")
   })
   
   get_threshold_inputs = function() {
@@ -311,7 +311,7 @@ server = function(input, output, session) {
     t_inputs = get_threshold_inputs()
     
     failed_species = c()
-    withProgress(message = 'Extracting distribution vectors via FishLife...', value = 0, {
+    withProgress(message = 'Extracting scores via FishLife...', value = 0, {
       for (i in seq_along(sp_names)) {
         sp = sp_names[i]
         setProgress(value = i / length(sp_names), detail = paste("Querying taxonomy mapping:", sp))
@@ -347,7 +347,7 @@ server = function(input, output, session) {
     
     res = fetch_fishlife_single(sp)
     if(is.null(res)) {
-      showNotification(paste("Taxon matching failed for name query:", sp), type = "error")
+      showNotification(paste("FishLife txon matching failed: try another name", sp), type = "error")
       return()
     }
     
@@ -366,7 +366,7 @@ server = function(input, output, session) {
         autofill_single_attr_from_csv(sp, attr)
       }
     }
-    showNotification(paste("Updated biological traits via FishLife; non-FishLife traits retained CSV configuration for", sp), type = "message")
+    showNotification(paste("Score attributes via FishLife; non-FishLife attributes retained CSV configuration for", sp), type = "message")
   })
   
   observeEvent(input$reset_species_csv_btn, {
@@ -375,7 +375,7 @@ server = function(input, output, session) {
     for (attr in all_attributes) {
       autofill_single_attr_from_csv(sp, attr)
     }
-    showNotification(paste("Successfully reset and re-autofilled all attributes from CSV data for:", sp), type = "message")
+    showNotification(paste("Successfully re-autofilled all attributes from CSV data for:", sp), type = "message")
   })
   
   lapply(all_attributes, function(target_attr) {
@@ -387,7 +387,7 @@ server = function(input, output, session) {
       if (target_attr %in% fl_sub_attrs) {
         res = fetch_fishlife_single(sp)
         if(is.null(res)) {
-          showNotification("Taxonomy resolved empty for targeted metric query.", type = "error")
+          showNotification("Taxonomy resolved empty for targeted metric", type = "error")
           return()
         }
         probs = calculate_single_probs(res$samples, t_inputs, high_val_is_high_cat)
@@ -399,34 +399,34 @@ server = function(input, output, session) {
             reactive_data$species_list[[sp]]$low[idx]  = round(probs[[target_attr]]$low, 4)
             reactive_data$species_list[[sp]]$mod[idx]  = round(probs[[target_attr]]$mod, 4)
             reactive_data$species_list[[sp]]$high[idx] = round(probs[[target_attr]]$high, 4)
-            showNotification(paste("Updated single trait [", target_attr, "] via FishLife model vector."), type = "message")
+            showNotification(paste("Scored single attribute [", target_attr, "] via FishLife."), type = "message")
           }
         }
       } else {
         autofill_single_attr_from_csv(sp, target_attr)
-        showNotification(paste("Reset single trait [", target_attr, "] back to raw CSV thresholds."), type = "message")
+        showNotification(paste("Reset single attribute [", target_attr, "] back to CSV data."), type = "message")
       }
     })
   })
   
   output$step3_panel = renderUI({
     if(!reactive_data$initialized) {
-      return(wellPanel(tags$em("Provide structural source configurations to initiate parameter builders.")))
+      return(wellPanel(tags$em("Provide source configurations")))
     }
     wellPanel(
       style = "border: 2px solid #5cb85c;",
-      tags$h4(tags$b("Step 3: Fine-Tune / Tweak Single Species Option"), style = "color: #5cb85c;"),
-      tags$p("Manually tweak vector definitions, isolate target vectors, or reset baseline matrices:"),
+      tags$h4(tags$b("Step 3: Fine-tune / tweak single species"), style = "color: #5cb85c;"),
+      tags$p("Manually tweak attributes"),
       
       fluidRow(
-        column(4, selectInput("tweak_sp_selector", "Target Entity Scope:", choices = names(reactive_data$species_list))),
-        column(4, style = "margin-top: 25px;", actionButton("fetch_full_species_fl", "Fetch Only FishLife Traits", class = "btn-info", style="width:100%; font-weight:bold;")),
+        column(4, selectInput("tweak_sp_selector", "Target scope:", choices = names(reactive_data$species_list))),
+        column(4, style = "margin-top: 25px;", actionButton("fetch_full_species_fl", "Fetch FishLife estimates", class = "btn-info", style="width:100%; font-weight:bold;")),
         column(4, style = "margin-top: 25px;", actionButton("reset_species_csv_btn", "Re-autofill with CSV data", class = "btn-warning", style="width:100%; font-weight:bold;"))
       ),
       hr(),
       uiOutput("individual_tweak_grid"),
       tags$br(),
-      actionButton("save_tweaks_btn", "Save Modification Vector", class = "btn-success", style = "width:100%; font-weight:bold;")
+      actionButton("save_tweaks_btn", "Save modifications", class = "btn-success", style = "width:100%; font-weight:bold;")
     )
   })
   
@@ -438,7 +438,7 @@ server = function(input, output, session) {
     tagList(
       fluidRow(
         style = "font-weight: bold; border-bottom: 2px solid #ccc; padding-bottom: 5px; margin-bottom: 10px;",
-        column(3, "Attribute Identity"), column(2, "Low Vector"), column(2, "Moderate Vector"), column(2, "High Vector"), column(2, "Weight Index"), column(1, "")
+        column(3, "Attribute Identity"), column(2, "Low"), column(2, "Moderate"), column(2, "High"), column(2, "Weight"), column(1, "")
       ),
       tags$div(
         style = "max-height: 380px; overflow-y: auto; overflow-x: hidden; padding-right: 10px;",
@@ -479,7 +479,7 @@ server = function(input, output, session) {
       if(!is.null(h_val)) reactive_data$species_list[[sp]]$high[idx] = h_val
       if(!is.null(w_val)) reactive_data$species_list[[sp]]$weight[idx] = w_val
     }
-    showNotification(paste("Configuration profiles saved for:", sp), type = "message")
+    showNotification(paste("Modification saved for:", sp), type = "message")
   })
   
   # --- MONTE CARLO ENGINE EXECUTED FORCEFULLY UPON BUTTON CLICK ---
@@ -495,7 +495,7 @@ server = function(input, output, session) {
     vulnerability_scores = list()
     sp_names = names(sp_list)
     
-    withProgress(message = "Running Monte Carlo PSA simulation...", value = 0, {
+    withProgress(message = "Running Monte Carlo simulation...", value = 0, {
       for (idx_sp in seq_along(sp_names)) {
         species = sp_names[idx_sp]
         incProgress(1 / length(sp_names), detail = paste("Simulating species:", species))
@@ -610,7 +610,7 @@ server = function(input, output, session) {
     
     # After calculating, forcefully jump user screen to the PSA Plots tab
     updateTabsetPanel(session, "main_tabs", selected = "PSA Plots")
-    showNotification("Simulation Complete! Data rendered automatically.", type = "message")
+    showNotification("Simulation Complete!", type = "message")
   })
   
   # --- GRAPH RENDERING ---
@@ -625,7 +625,7 @@ server = function(input, output, session) {
       geom_linerange(data = results_df, aes(y = mean_susceptibility, x = mean_productivity, xmin = uci_productivity, xmax = lci_productivity), alpha = 0.4, linewidth = 1) +
       geom_point(data = results_df, aes(y = mean_susceptibility, x = mean_productivity, shape = has_fishlife), alpha = 0.7, size = 2) +
       geom_text_repel(data = results_df, aes(label = species, y = mean_susceptibility, x = mean_productivity), fontface = "italic", force = 50, size = 2.3) +
-      scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 1), labels = c("TRUE" = "FishLife", "FALSE" = "CSV only"), name = "") +
+      scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 1), labels = c("TRUE" = "FishLife", "FALSE" = "Non-FishLife"), name = "") +
       scale_fill_gradientn(colors = c("forestgreen","green3","green2","greenyellow","orange3","red","red2","red3","red4"), guide = "none") +
       labs(x = "Productivity", y = "Susceptibility") +
       xlim(1, 3) + ylim(1, 3) + scale_x_reverse() +
@@ -689,7 +689,7 @@ server = function(input, output, session) {
     ggplot(plot_data, aes(x = species, y = proportion, fill = vul_category)) +
       geom_bar(stat = "identity", width = 1) +
       scale_fill_manual(values = c(Low = "greenyellow", Moderate = "orange", High = "red2"), name = "Vulnerability") +
-      labs(x = "Species Identity (Ordered by Mean Vulnerability Score)", y = "Relative Categorical Probability Proportion") +
+      labs(x = "Species by vulnerability", y = "Proportion of bootstrap samples") +
       theme_bw() +
       theme(
         axis.text.x = element_text(angle = 45, hjust = 1, face = "italic", color = "black"),
