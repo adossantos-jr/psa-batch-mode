@@ -95,7 +95,7 @@ ui = fluidPage(
   titlePanel("PSA in batch mode"),
   sidebarLayout(
     sidebarPanel(
-      fileInput("file_csv", "Step 1: choose CSV file", accept = ".csv"),
+      fileInput("file_csv", "Choose CSV file", accept = ".csv"),
       hr(),
       tags$h4(tags$b("Step 1: Set attribute thresholds"), style = "color: #337ab7; margin-bottom: 12px;"),
       tags$p("Define thresholds (Low to Moderate / Moderate to High) for parameters:", style = "font-size: 12px; color: #666;"),
@@ -420,7 +420,7 @@ server = function(input, output, session) {
       
       fluidRow(
         column(4, selectInput("tweak_sp_selector", "Target scope:", choices = names(reactive_data$species_list))),
-        column(4, style = "margin-top: 25px;", actionButton("fetch_full_species_fl", "Fetch FishLife estimates", class = "btn-info", style="width:100%; font-weight:bold;")),
+        column(4, style = "margin-top: 25px;", actionButton("fetch_full_species_fl", "Retrieve FishLife estimates", class = "btn-info", style="width:100%; font-weight:bold;")),
         column(4, style = "margin-top: 25px;", actionButton("reset_species_csv_btn", "Re-autofill with CSV data", class = "btn-warning", style="width:100%; font-weight:bold;"))
       ),
       hr(),
@@ -623,9 +623,8 @@ server = function(input, output, session) {
       geom_tile(data = df_col, aes(x, y, fill = zcolor)) +
       geom_linerange(data = results_df, aes(y = mean_susceptibility, x = mean_productivity, ymin = lci_susceptibility, ymax = uci_susceptibility), alpha = 0.4, linewidth = 1) +
       geom_linerange(data = results_df, aes(y = mean_susceptibility, x = mean_productivity, xmin = uci_productivity, xmax = lci_productivity), alpha = 0.4, linewidth = 1) +
-      geom_point(data = results_df, aes(y = mean_susceptibility, x = mean_productivity, shape = has_fishlife), alpha = 0.7, size = 2) +
+      geom_point(data = results_df, aes(y = mean_susceptibility, x = mean_productivity), alpha = 0.7, size = 2) +
       geom_text_repel(data = results_df, aes(label = species, y = mean_susceptibility, x = mean_productivity), fontface = "italic", force = 50, size = 2.3) +
-      scale_shape_manual(values = c("TRUE" = 16, "FALSE" = 1), labels = c("TRUE" = "FishLife", "FALSE" = "Non-FishLife"), name = "") +
       scale_fill_gradientn(colors = c("forestgreen","green3","green2","greenyellow","orange3","red","red2","red3","red4"), guide = "none") +
       labs(x = "Productivity", y = "Susceptibility") +
       xlim(1, 3) + ylim(1, 3) + scale_x_reverse() +
