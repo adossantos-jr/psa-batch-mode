@@ -51,10 +51,10 @@ You can modify attribute and vulnerability thresholds if you wish in the left me
 
 And done! This is all needed to run a batch PSA with these standard thresholds and no probabilistic scoring. If you wish to modify the attribute thresholds, you can select the species, the attributes and assign the probababilities. You can batch autoscore productivity attributes with FishLife probabilistic densities for all species at one, or you can select attributes and species to autoscore with FishLife before running the PSA. Attributes that can be retrieved from FishLife to score productivity are `r`, `tmax`, `k`, `m` and `tmat`. 
 
-Some graphical outputs should look like this:
+Graphical outputs should look like this:
 
-<img width="525" height="750" alt="PSA_Plot_2026-06-02" src="https://github.com/user-attachments/assets/d3b22be2-f44b-4c1d-8762-d639c07d4ac8" />
-<img width="750" height="375" alt="Proportions_Plot_2026-06-02" src="https://github.com/user-attachments/assets/22389277-433d-4d1e-b464-06debdee3c70" />
+<img width="787.5" height="1125" alt="psa_plot_2026-06-03" src="https://github.com/user-attachments/assets/bb5c955e-49e2-4532-9d14-25dbaf3b8eff" />
+<img width="1125" height="562.5" alt="proportions_plot_2026-06-03" src="https://github.com/user-attachments/assets/2c9a586a-8ea0-408c-90df-8100f263ddd0" />
 
 
 ### Limitations
