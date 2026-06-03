@@ -53,8 +53,9 @@ And done! This is all needed to run a batch PSA with these standard thresholds a
 
 Graphical outputs should look like this:
 
-<img width="787.5" height="1125" alt="psa_plot_2026-06-03" src="https://github.com/user-attachments/assets/bb5c955e-49e2-4532-9d14-25dbaf3b8eff" />
-<img width="1125" height="562.5" alt="proportions_plot_2026-06-03" src="https://github.com/user-attachments/assets/2c9a586a-8ea0-408c-90df-8100f263ddd0" />
+<img width="500" height="710" alt="psa_plot_2026-06-03" src="https://github.com/user-attachments/assets/ede56f10-48db-4795-9c85-d785ec242ff7" />
+<img width="600" height="300" alt="proportions_plot_2026-06-03" src="https://github.com/user-attachments/assets/ed2c45e1-d17a-4c02-8899-ebb317eb8c32" />
+
 
 
 ### Limitations
