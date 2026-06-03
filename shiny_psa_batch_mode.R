@@ -1,3 +1,7 @@
+# This is a shiny app to run PSA (Productivity-Susceptibility Analysis) 
+# for multiple species/stocks at once in batch mode
+# See https://github.com/adossantos-jr/psa-batch-mode
+
 if (!require("remotes")) install.packages("remotes")
 if (!require("FishLife")) remotes::install_github("James-Thorson-NOAA/James-Thorson-NOAA/FishLife")
 if (!require("pacman")) install.packages("pacman")
@@ -81,7 +85,7 @@ df_col = {
 }
 
 ui = fluidPage(
-  titlePanel("PSA in batch mode"),
+  titlePanel("PSA in batch-processing mode"),
   sidebarLayout(
     sidebarPanel(
       fileInput("file_csv", "Choose CSV file", accept=".csv"),
@@ -111,40 +115,40 @@ ui = fluidPage(
                  wellPanel(
                    style="border:2px solid #f0ad4e;",
                    tags$h4(tags$b("Step 2: Batch score options"), style="color:#f0ad4e;"),
-                   tags$p("CSV attributes are mapped automatically on upload."),
+                   tags$p("Attributes in your data are categorized within thresholds automatically"),
                    actionButton("bulk_score_fl", "Score life-history traits via FishLife (all species)", class="btn-warning", style="width:100%; font-weight:bold;")
                  ),
                  uiOutput("step3_panel")
         ),
-        tabPanel("PSA Plots",
+        tabPanel("PSA plots",
                  tags$br(),
-                 downloadButton("dl_psa_plot", "Download PSA Plot (PNG)"),
+                 downloadButton("dl_psa_plot", "Download PSA plot (PNG)"),
                  tags$br(), tags$br(),
                  plotOutput("psa_plot", height="600px"),
                  tags$hr(),
-                 downloadButton("dl_density_plot", "Download Prod. Density Plot (PNG)"),
+                 downloadButton("dl_density_plot", "Download prod. density plot (PNG)"),
                  tags$br(), tags$br(),
                  plotOutput("density_plot", height="400px")
         ),
-        tabPanel("Category Proportions Plot",
+        tabPanel("Vulnerability prob. plot",
                  tags$br(),
-                 downloadButton("dl_proportions_plot", "Download Proportions Plot (PNG)"),
+                 downloadButton("dl_proportions_plot", "Download vulnerability prob. plot (PNG)"),
                  tags$br(), tags$br(),
                  plotOutput("proportions_plot", height="500px")
         ),
-        tabPanel("Results Summary",
+        tabPanel("Results summary",
                  tags$br(),
                  downloadButton("dl_results_table", "Download CSV"),
                  tags$br(), tags$br(),
                  DTOutput("results_table")
         ),
-        tabPanel("Vulnerability Outcomes",
+        tabPanel("Vulnerability outcomes",
                  tags$br(),
                  downloadButton("dl_probs_table", "Download CSV"),
                  tags$br(), tags$br(),
                  DTOutput("probs_table")
         ),
-        tabPanel("Attribute Probability Table",
+        tabPanel("Attribute probability table",
                  tags$br(),
                  downloadButton("dl_fishlife_matrix", "Download CSV"),
                  tags$br(), tags$br(),
@@ -323,7 +327,7 @@ server = function(input, output, session) {
   })
   
   output$step3_panel = renderUI({
-    if (!rv$initialized) return(wellPanel(tags$em("Load a CSV file to enable fine-tuning.")))
+    if (!rv$initialized) return(wellPanel(tags$em("Load a CSV file to enable specific fine-tuning.")))
     wellPanel(
       style="border:2px solid #5cb85c;",
       tags$h4(tags$b("Step 3: Fine-tune single species"), style="color:#5cb85c;"),
@@ -392,7 +396,7 @@ server = function(input, output, session) {
     for (sp in sp_names) sp_list[[sp]]$weight[sp_list[[sp]]$attribute == "r"] = 2
     
     vuln_scores = list()
-    withProgress(message="Running Monte Carlo simulation...", value=0, {
+    withProgress(message="Running permutations...", value=0, {
       for (i in seq_along(sp_names)) {
         sp = sp_names[i]
         incProgress(1/length(sp_names), detail=paste("Simulating:", sp))
@@ -477,7 +481,7 @@ server = function(input, output, session) {
       fishlife_scores_df=fishlife_scores_df, prod_density_df=prod_density_df
     )
     
-    updateTabsetPanel(session, "main_tabs", selected="PSA Plots")
+    updateTabsetPanel(session, "main_tabs", selected="PSA plots")
     showNotification("Done!", type="message")
   })
   
@@ -508,7 +512,7 @@ server = function(input, output, session) {
     hist = ggplot() +
       geom_histogram(data=res, aes(x=mean_vulnerability, fill=vul_category), binwidth=0.03) +
       scale_fill_manual(values=c("greenyellow","orange","red2"), breaks=c("Low","Moderate","High")) +
-      labs(x="Vulnerability", y="No. species", fill="") +
+      labs(x="Vulnerability (mean)", y="No. species", fill="") +
       scale_x_continuous(limits=c(1,3), breaks=seq(1,3,0.5)) +
       theme_bw() + theme(axis.text=element_text(color="black"), legend.position="bottom")
     
@@ -560,13 +564,13 @@ server = function(input, output, session) {
     content  = function(file) ggsave(file, plot=plot_fn(), width=w, height=h, dpi=300)
   )
   
-  output$dl_psa_plot         = downloadHandler(filename=function() paste0("PSA_Plot_",        Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_psa_plot(),         width=7,  height=10, dpi=300))
-  output$dl_density_plot     = downloadHandler(filename=function() paste0("Density_Plot_",    Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_density_plot(),     width=10, height=6,  dpi=300))
-  output$dl_proportions_plot = downloadHandler(filename=function() paste0("Proportions_Plot_",Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_proportions_plot(), width=10, height=5,  dpi=300))
+  output$dl_psa_plot         = downloadHandler(filename=function() paste0("psa_plot_",        Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_psa_plot(),         w=10.5/2,  h=15/2, dpi=300))
+  output$dl_density_plot     = downloadHandler(filename=function() paste0("density_plot_",    Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_density_plot(),     w=15/2, h=9/2,  dpi=300))
+  output$dl_proportions_plot = downloadHandler(filename=function() paste0("proportions_plot_",Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_proportions_plot(), w=15/2, height=7.5/2,  dpi=300))
   
-  output$dl_results_table  = downloadHandler(filename=function() paste0("Results_Summary_",        Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$results_df,         file, row.names=FALSE) })
-  output$dl_probs_table    = downloadHandler(filename=function() paste0("Vulnerability_Outcomes_",  Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$probs_df,           file, row.names=FALSE) })
-  output$dl_fishlife_matrix = downloadHandler(filename=function() paste0("Attribute_Prob_Table_",   Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$fishlife_scores_df,  file, row.names=FALSE) })
+  output$dl_results_table  = downloadHandler(filename=function() paste0("results_summary_",        Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$results_df,         file, row.names=FALSE) })
+  output$dl_probs_table    = downloadHandler(filename=function() paste0("vulnerability_outcomes_",  Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$probs_df,           file, row.names=FALSE) })
+  output$dl_fishlife_matrix = downloadHandler(filename=function() paste0("attribute_prob_table_",   Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$fishlife_scores_df,  file, row.names=FALSE) })
 }
 
 shinyApp(ui, server)
