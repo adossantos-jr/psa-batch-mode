@@ -1,21 +1,19 @@
-# This is a shiny app to run PSA (Productivity-Susceptibility Analysis) 
-# for multiple species/stocks at once in batch mode
-# See https://github.com/adossantos-jr/psa-batch-mode
+# PSA batch mode — https://github.com/adossantos-jr/psa-batch-mode
 
 if (!require("remotes")) install.packages("remotes")
 if (!require("FishLife")) remotes::install_github("James-Thorson-NOAA/James-Thorson-NOAA/FishLife")
 if (!require("pacman")) install.packages("pacman")
 pacman::p_load(shiny, MASS, stringr, dplyr, ggplot2, ggrepel, patchwork, FishLife, DT, tidyr)
 
-prod_attrs = c("r","tmax","lmax","k","m","fec","breed","rec","tmat","troph")
-susc_attrs = c("area_over","geog_conc","vert_over","seas_migr","school","morph","desire","mng_strat","f_over_m","b_over_b0","surv_prob","hab_impact")
+prod_attrs     = c("r","tmax","lmax","k","m","fec","breed","rec","tmat","troph")
+susc_attrs     = c("area_over","geog_conc","vert_over","seas_migr","school","morph","desire","mng_strat","f_over_m","b_over_b0","surv_prob","hab_impact")
 all_attributes = c(prod_attrs, susc_attrs)
 
-fl_map = c(r="r", k="K", m="M", tmax="tmax", lmax="Loo", tmat="tm")
+fl_map       = c(r="r", k="K", m="M", tmax="tmax", lmax="Loo", tmat="tm")
 fl_sub_attrs = names(fl_map)
 
 high_val_is_high_cat = c(
-  r=TRUE,  tmax=FALSE, lmax=FALSE, k=TRUE,  m=TRUE,  fec=TRUE,
+  r=TRUE, tmax=FALSE, lmax=FALSE, k=TRUE, m=TRUE, fec=TRUE,
   breed=FALSE, rec=NA, tmat=TRUE, troph=FALSE,
   area_over=TRUE, geog_conc=NA, vert_over=NA, seas_migr=NA,
   school=NA, morph=NA, desire=NA, mng_strat=NA,
@@ -29,6 +27,10 @@ threshold_defaults = list(
   school=c(1,2), morph=c(1,2), desire=c(1,2), mng_strat=c(1,2),
   f_over_m=c(0.5,1.0), b_over_b0=c(0.25,0.40), surv_prob=c(0.33,0.67), hab_impact=c(1,2)
 )
+
+# r gets double weight by convention; all others default to 1
+weight_defaults = setNames(rep(1, length(all_attributes)), all_attributes)
+weight_defaults["r"] = 2
 
 create_empty_species_list = function(species_names) {
   lapply(setNames(as.list(species_names), species_names), function(sp)
@@ -62,8 +64,7 @@ fetch_fishlife_single = function(sciname, n_samples=5000) {
 calculate_single_probs = function(s, t_inputs, high_cat_dir) {
   res_list = list()
   for (attr in names(fl_map)) {
-    fl_col = fl_map[[attr]]
-    vals = s[[fl_col]]
+    vals = s[[fl_map[[attr]]]]
     t1   = t_inputs[[attr]]$t1
     t2   = t_inputs[[attr]]$t2
     is_high_cat = high_cat_dir[[attr]]
@@ -77,8 +78,7 @@ calculate_single_probs = function(s, t_inputs, high_cat_dir) {
 }
 
 df_col = {
-  xc = seq(0, 1, length.out=200)
-  yc = seq(0, 1, length.out=200)
+  xc = seq(0,1,length.out=200); yc = seq(0,1,length.out=200)
   g  = cbind(expand.grid(xcolor=xc, ycolor=yc), expand.grid(x=seq(3,1,length.out=200), y=seq(1,3,length.out=200)))
   g$zcolor = g$xcolor^2 + g$ycolor^2
   g
@@ -90,17 +90,22 @@ ui = fluidPage(
     sidebarPanel(
       fileInput("file_csv", "Choose CSV file", accept=".csv"),
       hr(),
-      tags$h4(tags$b("Step 1: Set attribute thresholds"), style="color:#337ab7; margin-bottom:12px;"),
-      tags$p("Define thresholds (Low/Moderate and Moderate/High) for each attribute:", style="font-size:12px; color:#666;"),
+      tags$h4(tags$b("Step 1: Set attribute thresholds & weights"), style="color:#337ab7; margin-bottom:12px;"),
+      tags$p("Thresholds and weights apply to all species. Empty CSV columns are automatically weighted 0.", style="font-size:12px; color:#666;"),
       tags$div(
         style="max-height:400px; overflow-y:auto; border:1px solid #ddd; padding:10px; background-color:#fafafa; border-radius:4px; margin-bottom:15px;",
+        fluidRow(
+          style="font-weight:bold; font-size:11px; padding-bottom:4px; margin-bottom:4px; border-bottom:2px solid #ccc;",
+          column(3, "Attribute"), column(3, "Low→Mod"), column(3, "Mod→High"), column(3, "Weight")
+        ),
         lapply(all_attributes, function(attr) {
           defs = threshold_defaults[[attr]]
           fluidRow(
-            style="margin-bottom:8px; padding-bottom:4px; border-bottom:1px dashed #eee;",
-            column(4, tags$b(attr, style="font-size:13px; display:block; margin-top:10px;")),
-            column(4, style="padding:2px;", numericInput(paste0("g_t_",attr,"_1"), "Low to Moderate", value=defs[1])),
-            column(4, style="padding:2px;", numericInput(paste0("g_t_",attr,"_2"), "Moderate to High", value=defs[2]))
+            style="margin-bottom:6px; padding-bottom:4px; border-bottom:1px dashed #eee;",
+            column(3, tags$b(attr, style="font-size:12px; display:block; margin-top:10px;")),
+            column(3, style="padding:2px;", numericInput(paste0("g_t_",attr,"_1"), NULL, value=defs[1])),
+            column(3, style="padding:2px;", numericInput(paste0("g_t_",attr,"_2"), NULL, value=defs[2])),
+            column(3, style="padding:2px;", numericInput(paste0("g_w_",attr),      NULL, value=weight_defaults[[attr]], min=0, step=0.5))
           )
         })
       ),
@@ -115,7 +120,7 @@ ui = fluidPage(
                  wellPanel(
                    style="border:2px solid #f0ad4e;",
                    tags$h4(tags$b("Step 2: Batch score options"), style="color:#f0ad4e;"),
-                   tags$p("Attributes in your data are categorized within thresholds automatically"),
+                   tags$p("Attributes in your data are categorized within thresholds automatically on upload."),
                    actionButton("bulk_score_fl", "Score life-history traits via FishLife (all species)", class="btn-warning", style="width:100%; font-weight:bold;")
                  ),
                  uiOutput("step3_panel")
@@ -177,8 +182,8 @@ server = function(input, output, session) {
         if (abs(val + o1 + o2 - 1) > 0.01) {
           rem = 1 - val
           if (o1 + o2 > 0) { n1 = rem * o1/(o1+o2); n2 = rem * o2/(o1+o2) } else { n1 = n2 = rem/2 }
-          updateNumericInput(session, other1_id, value=round(n1, 3))
-          updateNumericInput(session, other2_id, value=round(n2, 3))
+          updateNumericInput(session, other1_id, value=round(n1,3))
+          updateNumericInput(session, other2_id, value=round(n2,3))
         }
       }, ignoreInit=TRUE)
     }
@@ -193,11 +198,25 @@ server = function(input, output, session) {
     )
   }
   
+  # Returns TRUE if the CSV column for this attr/species is entirely blank/NA
+  col_is_empty = function(sp, attr) {
+    if (is.null(rv$df) || !(attr %in% names(rv$df))) return(TRUE)
+    vals = rv$df[rv$df$species == sp, attr]
+    all(is.na(vals) | trimws(as.character(vals)) == "" | trimws(as.character(vals)) == "NA")
+  }
+  
   score_from_csv = function(sp, attr) {
     req(rv$df)
     row_data = rv$df[rv$df$species == sp, ][1, ]
     idx = which(rv$species_list[[sp]]$attribute == attr)
     if (length(idx) == 0 || !(attr %in% names(row_data))) return()
+    
+    # Empty column → weight 0, leave probs at 0
+    if (col_is_empty(sp, attr)) {
+      rv$species_list[[sp]]$weight[idx] = 0
+      rv$species_list[[sp]]$source[idx] = "CSV"
+      return()
+    }
     
     val_raw = row_data[[attr]]
     val_str = tolower(trimws(as.character(val_raw)))
@@ -213,12 +232,10 @@ server = function(input, output, session) {
       t1  = input[[paste0("g_t_",attr,"_1")]]
       t2  = input[[paste0("g_t_",attr,"_2")]]
       dir = high_val_is_high_cat[[attr]]
-      if (!is.na(val) && !is.null(t1) && !is.null(t2) && !is.na(dir)) {
-        mag = if (dir) ifelse(val > t2, "high", ifelse(val < t1, "low", "mod")) else
+      mag = if (!is.na(val) && !is.null(t1) && !is.null(t2) && !is.na(dir))
+        if (dir) ifelse(val > t2, "high", ifelse(val < t1, "low", "mod")) else
           ifelse(val < t1, "high", ifelse(val > t2, "low", "mod"))
-      } else {
-        mag = NA
-      }
+      else NA
     }
     
     rv$species_list[[sp]]$low[idx]    = ifelse(!is.na(mag) && mag=="low",  1, 0)
@@ -232,8 +249,8 @@ server = function(input, output, session) {
     df_raw = read.csv(input$file_csv$datapath, stringsAsFactors=FALSE)
     rv$df  = df_raw
     sp_names = unique(df_raw$species)
-    rv$species_list  = create_empty_species_list(sp_names)
-    rv$initialized   = TRUE
+    rv$species_list = create_empty_species_list(sp_names)
+    rv$initialized  = TRUE
     for (sp in sp_names) for (attr in all_attributes) score_from_csv(sp, attr)
     showNotification("CSV loaded.", type="message")
   })
@@ -327,7 +344,7 @@ server = function(input, output, session) {
   })
   
   output$step3_panel = renderUI({
-    if (!rv$initialized) return(wellPanel(tags$em("Load a CSV file to enable specific fine-tuning.")))
+    if (!rv$initialized) return(wellPanel(tags$em("Load a CSV file to enable fine-tuning.")))
     wellPanel(
       style="border:2px solid #5cb85c;",
       tags$h4(tags$b("Step 3: Fine-tune single species"), style="color:#5cb85c;"),
@@ -355,7 +372,7 @@ server = function(input, output, session) {
       tags$div(
         style="max-height:380px; overflow-y:auto; overflow-x:hidden; padding-right:10px;",
         lapply(all_attributes, function(attr) {
-          row_data = sp_df[sp_df$attribute == attr, ]
+          row_data  = sp_df[sp_df$attribute == attr, ]
           if (nrow(row_data) == 0) row_data = data.frame(low=0, mod=0, high=0, weight=1, source="None")
           btn_label = if (attr %in% fl_sub_attrs) paste0("Fetch ", attr) else "Reset to CSV"
           fluidRow(
@@ -392,8 +409,15 @@ server = function(input, output, session) {
     sp_list  = rv$species_list
     sp_names = names(sp_list)
     
-    # Double weight for intrinsic rate of increase
-    for (sp in sp_names) sp_list[[sp]]$weight[sp_list[[sp]]$attribute == "r"] = 2
+    # Apply global sidebar weights; empty-column species keep their 0-weight from score_from_csv
+    for (sp in sp_names) {
+      for (attr in all_attributes) {
+        idx = which(sp_list[[sp]]$attribute == attr)
+        if (length(idx) > 0 && sp_list[[sp]]$weight[idx] != 0) {
+          sp_list[[sp]]$weight[idx] = input[[paste0("g_w_",attr)]] %||% weight_defaults[[attr]]
+        }
+      }
+    }
     
     vuln_scores = list()
     withProgress(message="Running permutations...", value=0, {
@@ -433,8 +457,8 @@ server = function(input, output, session) {
         matched_taxon       = rv$matched_taxa[[sp]] %||% NA,
         has_fishlife        = !is.null(rv$matched_taxa[[sp]]),
         mean_productivity   = mean(v$productivity),
-        lci_productivity    = quantile(v$productivity,  0.025),
-        uci_productivity    = quantile(v$productivity,  0.975),
+        lci_productivity    = quantile(v$productivity,   0.025),
+        uci_productivity    = quantile(v$productivity,   0.975),
         sd_productivity     = sd(v$productivity),
         mean_susceptibility = mean(v$susceptibility),
         lci_susceptibility  = quantile(v$susceptibility, 0.025),
@@ -452,7 +476,7 @@ server = function(input, output, session) {
     probs_df = do.call(rbind, lapply(sp_names, function(sp) {
       cats = sapply(vuln_scores[[sp]]$vulnerability, vul_class)
       data.frame(
-        species = sp,
+        species                            = sp,
         probability_low_vulnerability      = round(mean(cats=="Low"),      4),
         probability_moderate_vulnerability = round(mean(cats=="Moderate"), 4),
         probability_high_vulnerability     = round(mean(cats=="High"),     4),
@@ -461,7 +485,7 @@ server = function(input, output, session) {
     }))
     
     fishlife_scores_df = do.call(rbind, lapply(sp_names, function(sp) {
-      d = sp_list[[sp]]
+      d     = sp_list[[sp]]
       sub_d = d[d$attribute %in% fl_sub_attrs, ]
       if (nrow(sub_d) == 0) return(NULL)
       data.frame(
@@ -514,7 +538,8 @@ server = function(input, output, session) {
       scale_fill_manual(values=c("greenyellow","orange","red2"), breaks=c("Low","Moderate","High")) +
       labs(x="Vulnerability (mean)", y="No. species", fill="") +
       scale_x_continuous(limits=c(1,3), breaks=seq(1,3,0.5)) +
-      theme_bw() + theme(axis.text=element_text(color="black"), legend.position="bottom")
+      scale_y_continuous(breaks=function(x) seq(0, floor(max(x)), by=1)) +
+      theme_test() + theme(axis.text=element_text(color="black"), legend.position="bottom")
     
     psa_main / (hist + plot_spacer() + plot_layout(widths=c(1,0.2))) + plot_layout(heights=c(1,0.5))
   })
@@ -526,7 +551,7 @@ server = function(input, output, session) {
       geom_vline(data=rv$psa_results$results_df, aes(xintercept=mean_productivity, color=species), linetype="dashed", linewidth=0.6) +
       labs(x="Productivity score", y="Density", fill="", color="") +
       scale_x_continuous(limits=c(1,3), breaks=seq(1,3,0.5)) +
-      theme_bw() + theme(axis.text=element_text(color="black"), legend.text=element_text(face="italic"), legend.position="bottom")
+      theme_test() + theme(axis.text=element_text(color="black"), legend.text=element_text(face="italic"), legend.position="bottom")
   })
   
   build_proportions_plot = reactive({
@@ -546,8 +571,8 @@ server = function(input, output, session) {
     ggplot(plot_data, aes(x=species, y=proportion, fill=vul_category)) +
       geom_bar(stat="identity", width=1) +
       scale_fill_manual(values=c(Low="greenyellow", Moderate="orange", High="red2"), name="Vulnerability") +
-      labs(x="Species (ordered by vulnerability)", y="Proportion of bootstrap samples") +
-      theme_bw() +
+      labs(x="Species (ordered by vulnerability)", y="Proportion of permutation samples") +
+      theme_test() +
       theme(axis.text.x=element_text(angle=45, hjust=1, face="italic", color="black"), axis.text.y=element_text(color="black"))
   })
   
@@ -555,21 +580,16 @@ server = function(input, output, session) {
   output$density_plot     = renderPlot({ build_density_plot() })
   output$proportions_plot = renderPlot({ build_proportions_plot() })
   
-  output$results_table    = renderDT({ req(rv$psa_results); datatable(rv$psa_results$results_df,        rownames=FALSE) })
-  output$probs_table      = renderDT({ req(rv$psa_results); datatable(rv$psa_results$probs_df,          rownames=FALSE) })
-  output$fishlife_matrix  = renderDT({ req(rv$psa_results); datatable(rv$psa_results$fishlife_scores_df, rownames=FALSE) })
+  output$results_table   = renderDT({ req(rv$psa_results); datatable(rv$psa_results$results_df,         rownames=FALSE) })
+  output$probs_table     = renderDT({ req(rv$psa_results); datatable(rv$psa_results$probs_df,           rownames=FALSE) })
+  output$fishlife_matrix = renderDT({ req(rv$psa_results); datatable(rv$psa_results$fishlife_scores_df, rownames=FALSE) })
   
-  dl_plot = function(plot_fn, w, h) downloadHandler(
-    filename = function() paste0(deparse(substitute(plot_fn)), "_", Sys.Date(), ".png"),
-    content  = function(file) ggsave(file, plot=plot_fn(), width=w, height=h, dpi=300)
-  )
+  output$dl_psa_plot         = downloadHandler(filename=function() paste0("psa_plot_",         Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_psa_plot(),         width=10.5/2, height=15/2,  dpi=300))
+  output$dl_density_plot     = downloadHandler(filename=function() paste0("density_plot_",     Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_density_plot(),     width=15/2,   height=9/2,   dpi=300))
+  output$dl_proportions_plot = downloadHandler(filename=function() paste0("proportions_plot_", Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_proportions_plot(), width=15/2,   height=7.5/2, dpi=300))
   
-  output$dl_psa_plot         = downloadHandler(filename=function() paste0("psa_plot_",        Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_psa_plot(),         w=10.5/2,  h=15/2, dpi=300))
-  output$dl_density_plot     = downloadHandler(filename=function() paste0("density_plot_",    Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_density_plot(),     w=15/2, h=9/2,  dpi=300))
-  output$dl_proportions_plot = downloadHandler(filename=function() paste0("proportions_plot_",Sys.Date(), ".png"), content=function(file) ggsave(file, plot=build_proportions_plot(), w=15/2, height=7.5/2,  dpi=300))
-  
-  output$dl_results_table  = downloadHandler(filename=function() paste0("results_summary_",        Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$results_df,         file, row.names=FALSE) })
-  output$dl_probs_table    = downloadHandler(filename=function() paste0("vulnerability_outcomes_",  Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$probs_df,           file, row.names=FALSE) })
+  output$dl_results_table   = downloadHandler(filename=function() paste0("results_summary_",       Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$results_df,         file, row.names=FALSE) })
+  output$dl_probs_table     = downloadHandler(filename=function() paste0("vulnerability_outcomes_", Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$probs_df,           file, row.names=FALSE) })
   output$dl_fishlife_matrix = downloadHandler(filename=function() paste0("attribute_prob_table_",   Sys.Date(), ".csv"), content=function(file) { req(rv$psa_results); write.csv(rv$psa_results$fishlife_scores_df,  file, row.names=FALSE) })
 }
 
