@@ -3,7 +3,7 @@ This is an R shiny app for rapidly running Productivity-Susceptibility Analysis 
 
 ### Instructions
 #### Running the app
-This app is built in the R language and runs locally. To use it, you must download and install the latest version of [R](https://www.r-project.org/). You can then download the [R script file](https://github.com/adossantos-jr/psa-batch-mode/blob/main/shiny_psa_batch_mode.R) and run it on your terminal. 
+This app is built in the R language and runs locally. To use it, you must download and install the latest version of [R](https://www.r-project.org/). You can then download the [R script file](https://github.com/adossantos-jr/psa-batch-mode/blob/main/shiny_psa_batch_mode.R) and run it. 
 
 Using an Integrated Development Environment (IDE) such as [RStudio](https://posit.co/download/rstudio-desktop/) is recommended. If you have the script open in RStudio or a similar IDE, press Ctrl+A to select the whole script and then Ctrl+Enter to run it. The app window should appear then. 
 
