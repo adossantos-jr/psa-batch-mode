@@ -39,23 +39,19 @@ This routine requires a simple data frame with species as rows and attributes as
 
 These attributes follow [Patrick et al.(2009)](https://media.fisheries.noaa.gov/dam-migration/ns1-patrick-et-al-2010.pdf); you do not need to score all of them to run a PSA. Due to their qualitative nature, some of the columns are categorical and must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples on are available in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). If you leave an attribute column empty, the script will assign the weight of that attribute to 0 and the attribute will not be included in the analysis. 
 
-Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R. When you upload your data, attributes will be automatically scored based on the default thresholds. 
-
-<img width="1091" height="690" alt="ui_psa" src="https://github.com/user-attachments/assets/23915d0e-c38d-4c5a-b4f7-0193040b3bc4" />
+Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R. When you upload your data, attributes will be automatically scored based on the default thresholds. After uploading your data, attribute categories will be set automatically to de default thresholds: 
 
 
-You can modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use standard attribute and vulnerability thresholds, just scroll down and click the Run PSA  button.
+<img width="888" height="690" alt="ui_psa" src="https://github.com/user-attachments/assets/a0819e46-9dc4-41fd-94c1-37876ed36d5a" />
 
-<img width="1087" height="690" alt="ui_psa2" src="https://github.com/user-attachments/assets/daf0db2f-9a34-4767-9f11-74286cdb63de" />
 
+You can then modify attribute and vulnerability thresholds if you wish in the left menu. If you want to use the default attribute and vulnerability thresholds, just scroll down and click the Run PSA  button.
 
 And done! This is all needed to run a batch PSA with these standard thresholds and no probabilistic scoring. If you wish to modify the attribute thresholds, you can select the species, the attributes and assign the probababilities. You can batch autoscore productivity attributes with FishLife probabilistic densities for all species at one, or you can select attributes and species to autoscore with FishLife before running the PSA. Attributes that can be retrieved from FishLife to score productivity are `r`, `tmax`, `k`, `m` and `tmat`. 
 
-Graphical outputs should look like this:
+The main graphical output should look like this:
 
-<img width="500" height="710" alt="psa_plot_2026-06-03" src="https://github.com/user-attachments/assets/ede56f10-48db-4795-9c85-d785ec242ff7" />
-<img width="600" height="300" alt="proportions_plot_2026-06-03" src="https://github.com/user-attachments/assets/ed2c45e1-d17a-4c02-8899-ebb317eb8c32" />
-
+<img width="500" height="715" alt="psa_plot_2026-06-03" src="https://github.com/user-attachments/assets/5adc6acf-1c5b-47bd-8a6f-c9644ea042de" />
 
 
 ### Limitations
