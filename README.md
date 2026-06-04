@@ -1,7 +1,7 @@
 ## Productivity-Susceptiblity Analysis (PSA) for multiple species/stocks at once in batch mode
 This is an R shiny app for rapidly running Productivity-Susceptibility Analysis (PSA) to define vulnerability to overfishing for multiple species/stocks at once in a simple batch processing loop. The code for the PSA itself is mostly sourced from the [PSA Web Application at the Fisheries Integrated Toolbox (FIT)](https://nmfs-ost.github.io/noaa-fit/PSA) by the U. S. National Oceanic and Atmospheric Administration (NOAA), developed by Dr. Nathan Vaughan & Dr. Jason Cope. Like in the NOAA PSA Web Application, this routine allows for probabilistic attribute scoring and generates bootstrapping-based confidence intervals if scored using probabilities. This app also adds the possibility of directly retrieveing meta-analytical ([FishLife](https://github.com/James-Thorson-NOAA/FishLife)) attributes for probabilistic socring based on prediction densities. To learn more about FishLife, see [here](https://esajournals.onlinelibrary.wiley.com/doi/abs/10.1002/eap.1606) and [here](https://onlinelibrary.wiley.com/doi/abs/10.1111/faf.12427).
 
-### Instructions
+### Instructions 
 #### Running the app
 This app is built in the R language and runs locally. To use it, you must download and install the latest version of [R](https://www.r-project.org/). You can then download the [R script file](https://github.com/adossantos-jr/psa-batch-mode/blob/main/shiny_psa_batch_mode.R) and run it. 
 
@@ -37,7 +37,7 @@ This routine requires a simple data frame with species as rows and attributes as
 - `surv_prob`: Survival probability;
 - `hab_impact`: Habitat impact of the fishery.
 
-These attributes follow [Patrick et al.(2009)](https://media.fisheries.noaa.gov/dam-migration/ns1-patrick-et-al-2010.pdf); you do not need to score all of them to run a PSA. Due to their qualitative nature, some of the columns are categorical and must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples on are available in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). If you choose not to use an attribute, you can change its weight to 0 and it will not be included in the analysis.
+These attributes follow [Patrick et al.(2009)](https://media.fisheries.noaa.gov/dam-migration/ns1-patrick-et-al-2010.pdf); you do not need to score all of them to run a PSA. Due to their qualitative nature, some of the columns are categorical and must be filled according to the respective functions in the script (i. e. cat_morph requires categories 'high_selec', 'mod_selec' & 'low_selec'); examples on are available in the [test data](https://github.com/adossantos-jr/psa-batch-mode/blob/main/test_psa_data.csv). If you choose not to use an attribute, change its weight to 0 and it will not be included in the analysis. Empty attributes (NA) will be automatically identified and will be asssigned 0 weight.
 
 Data frame importing is done using the 'Browse" button (if you use software such as MS Excel to buid the data frame, remember to always convert it to a .csv file before importing to R. When you upload your data, attributes will be automatically scored based on the default thresholds. After uploading your data, attribute categories will be set automatically to de default thresholds: 
 
