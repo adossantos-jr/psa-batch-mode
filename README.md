@@ -55,7 +55,7 @@ The main graphical output should look like this:
 
 
 ### Limitations
-As of right now, this PSA shiny lacks the data quality index based on the number of attributes used. For now, when using this app, you should either use an equal number of attributes for all species, use the taxonomic level of FishLife estimates, or manually assign the data quality index.
+As of right now, this PSA shiny lacks the data quality index based on the number of attributes used. For now, when using this app, you should either use an equal number of attributes for all species, use the taxonomic level of FishLife estimates, or manually assign data quality.
 
 ### Resources
 
