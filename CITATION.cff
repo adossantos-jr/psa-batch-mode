@@ -1,0 +1,24 @@
+cff-version: 1.2.0
+message: "If you use this software or this dataset, please cite it as below."
+authors:
+  - family-names: "dos Santos"
+    given-names: "A. R."
+  - family-names: "Nóbrega"
+    given-names: "M. F."
+  - family-names: "Robert"
+    given-names: "M. C." 
+  - family-names: "Lins Oliveira"
+    given-names: "J. E."
+  - family-names: "Lessa"
+    given-names: "R. P. T."
+   - family-names: "Cope"
+    given-names: "J. M."
+title: "Fish vulnerability to overfishing based on meta-analytical trait estimates: how alternative productivity assumptions influence risk assessment under a novel approach"
+doi: "10.1007/s11160-026-10069-w"
+journal: "Reviews in Fish Biology and Fisheries"
+volume: 36
+issue: 1
+pages: 68
+year: 2026
+date-released: 2026-06-20
+url: "https://doi.org/10.1007/s11160-026-10069-w"
